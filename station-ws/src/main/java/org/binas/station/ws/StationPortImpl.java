@@ -71,32 +71,32 @@ public class StationPortImpl implements StationPortType {
 
 	// Test Control operations -----------------------------------------------
 
-	// /** Diagnostic operation to check if service is running. */
+	 /** Diagnostic operation to check if service is running. */
 	@Override
 	public String testPing(String inputMessage) {
-	// // If no input is received, return a default name.
+	 // If no input is received, return a default name.
 		if (inputMessage == null || inputMessage.trim().length() == 0)
 			inputMessage = "friend";
-	//
-	// // If the station does not have a name, return a default.
+	
+	 // If the station does not have a name, return a default.
 		String wsName = endpointManager.getWsName();
 		if (wsName == null || wsName.trim().length() == 0)
 			wsName = "Station";
-	//
-	// // Build a string with a message to return.
+	
+	 // Build a string with a message to return.
 		StringBuilder builder = new StringBuilder();
 		builder.append("Hello ").append(inputMessage);
 		builder.append(" from ").append(wsName);
 		return builder.toString();
 	}
-	//
-	// /** Return all station variables to default values. */
+	
+	 /** Return all station variables to default values. */
 	@Override
 	public void testClear() {
 		Station.getInstance().reset();
 	}
-	//
-	// /** Set station variables with specific values. */
+	
+	 /** Set station variables with specific values. */
 	@Override
 	public void testInit(int x, int y, int capacity, int returnPrize) throws BadInit_Exception {
 		try {
@@ -108,7 +108,7 @@ public class StationPortImpl implements StationPortType {
 
 	// View helpers ----------------------------------------------------------
 
-	// /** Helper to convert a domain station to a view. */
+	 /** Helper to convert a domain station to a view. */
 	private StationView buildStationView(Station station) {
 		StationView view = new StationView();
 		view.setId(station.getId());
@@ -138,16 +138,16 @@ public class StationPortImpl implements StationPortType {
 		faultInfo.message = message;
 		throw new NoBinaAvail_Exception(message, faultInfo);
 	}
-	//
-	// /** Helper to throw a new NoSlotAvail exception. */
+	
+	 /** Helper to throw a new NoSlotAvail exception. */
 	private void throwNoSlotAvail(final String message) throws
 		NoSlotAvail_Exception {
 		NoSlotAvail faultInfo = new NoSlotAvail();
 		faultInfo.message = message;
 		throw new NoSlotAvail_Exception(message, faultInfo);
 	}
-	//
-	// /** Helper to throw a new BadInit exception. */
+	
+	 /** Helper to throw a new BadInit exception. */
 	private void throwBadInit(final String message) throws BadInit_Exception {
 		BadInit faultInfo = new BadInit();
 		faultInfo.message = message;

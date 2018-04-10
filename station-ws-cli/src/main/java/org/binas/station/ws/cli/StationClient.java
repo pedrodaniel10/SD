@@ -1,5 +1,7 @@
 package org.binas.station.ws.cli;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
@@ -10,6 +12,9 @@ import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.StationPortType;
 import org.binas.station.ws.StationService;
 import org.binas.station.ws.StationView;
+
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
 /**
  * Client port wrapper.
@@ -66,7 +71,13 @@ public class StationClient implements StationPortType {
 
 	/** UDDI lookup */
 	private void uddiLookup() throws StationClientException {
-		// TODO
+		try {
+			UDDINaming uddiNaming = new UDDINaming(this.uddiURL);
+			this.wsURL = uddiNaming.lookup(this.wsName);
+		} catch (UDDINamingException e) {
+			throw new StationClientException("Error connecting to UDDI.", e);
+		}
+		
 	}
 
 
@@ -75,7 +86,11 @@ public class StationClient implements StationPortType {
 		if (verbose)
 			System.out.println("Creating stub ...");
 		// TODO
-		service = new StationService();
+		try {
+			service = new StationService(new URL(this.wsURL + "?wsdl"));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
 		port = service.getStationPort();
 		//
 		if (wsURL != null) {

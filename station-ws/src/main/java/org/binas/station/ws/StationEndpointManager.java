@@ -4,6 +4,9 @@ import java.io.IOException;
 
 import javax.xml.ws.Endpoint;
 
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
+
 /** The endpoint manager starts and registers the service. */
 public class StationEndpointManager {
 
@@ -23,7 +26,7 @@ public class StationEndpointManager {
 	/** Port implementation */
 	private StationPortImpl portImpl = new StationPortImpl(this);
 
-	// /** Obtain Port implementation */
+	 /** Obtain Port implementation */
 	public StationPortType getPort() {
 		return portImpl;
 	}
@@ -31,13 +34,13 @@ public class StationEndpointManager {
 	/** Web Service end point */
 	private Endpoint endpoint = null;
 
-	// /** UDDI Naming instance for contacting UDDI server */
-	// private UDDINaming uddiNaming = null;
-	//
-	// /** Get UDDI Naming instance for contacting UDDI server */
-	// UDDINaming getUddiNaming() {
-	// return uddiNaming;
-	// }
+	 /** UDDI Naming instance for contacting UDDI server */
+	 private UDDINaming uddiNaming = null;
+	
+	 /** Get UDDI Naming instance for contacting UDDI server */
+	 UDDINaming getUddiNaming() {
+		 return uddiNaming;
+	 }
 
 	/** output option */
 	private boolean verbose = true;
@@ -119,11 +122,22 @@ public class StationEndpointManager {
 	/* UDDI */
 
 	void publishToUDDI() throws Exception {
-		// TODO
+		//// publish to UDDI
+		System.out.printf("Publishing '%s' to UDDI at %s%n", this.wsName, this.uddiURL);
+		this.uddiNaming = new UDDINaming(uddiURL);
+		this.uddiNaming.rebind(this.wsName, this.wsURL);
 	}
 
 	void unpublishFromUDDI() {
-		// TODO
+		if (this.uddiNaming != null) {
+			// delete from UDDI
+			try {
+				this.uddiNaming.unbind(this.wsName);
+			} catch (UDDINamingException e) {
+				System.out.printf("Caught exception when unbinding UDDINaming: %s%n", e);
+			}
+			System.out.printf("Deleted '%s' from UDDI%n", this.wsName);
+		}
 	}
 
 }
