@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.jws.WebService;
+import javax.xml.registry.infomodel.User;
 
 import org.binas.domain.BinasManager;
 import org.binas.station.ws.cli.StationClient;
@@ -75,7 +76,7 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public void rentBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception,
 			NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
@@ -114,8 +115,7 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public void testClear() {
-		// TODO Auto-generated method stub
-		
+		User.clear();
 	}
 
 	@Override
