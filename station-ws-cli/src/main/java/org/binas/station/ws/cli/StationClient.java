@@ -86,11 +86,9 @@ public class StationClient implements StationPortType {
 		if (verbose)
 			System.out.println("Creating stub ...");
 		// TODO
-		try {
-			service = new StationService(new URL(this.wsURL + "?wsdl"));
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
+
+		service = new StationService();
+
 		port = service.getStationPort();
 		//
 		if (wsURL != null) {
@@ -98,7 +96,7 @@ public class StationClient implements StationPortType {
 				System.out.println("Setting endpoint address ...");
 			BindingProvider bindingProvider = (BindingProvider) port;
 			Map<String, Object> requestContext = bindingProvider.getRequestContext();
-			requestContext.put("ENDPOINT_ADDRESS_PROPERTY", wsURL);
+			requestContext.put("ENDPOINT_ADDRESS_PROPERTY", this.wsURL);
 		}
 	}
 

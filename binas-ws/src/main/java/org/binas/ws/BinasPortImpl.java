@@ -69,29 +69,26 @@ public class BinasPortImpl implements BinasPortType {
 	public String testPing(String inputMessage) {
 		UDDINaming uddiNaming;
 		Collection<String> uddiList;
-
+		String result = "";
 		try {
 			uddiNaming = this.binasManager.getUddiNaming();
 			uddiList = uddiNaming.list("A47_Station%");
 			
-			System.out.println("Founded " + uddiList.size() + " stations.");
+			result += "Founded " + uddiList.size() + " stations.\n";
 			
 			for(String wsURL : uddiList){
-				System.out.println("Pinging " + wsURL);
+				result += "[Pinging] " + wsURL + "\n[Answer] ";
 				StationClient stationClient = new StationClient(wsURL);
-				String result = stationClient.testPing(inputMessage);
-				System.out.println(result);
+				result += stationClient.testPing(inputMessage) + "\n";
 			}
 			
-			
 		} catch (UDDINamingException e) {
-			System.out.printf("Caught exception when starting: %s%n", e);
+			System.err.printf("Caught exception: %s%n", e);
 		} catch (StationClientException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.printf("Caught exception creating StationClientException: %s%n", e);
 		}
 		
-		return null;
+		return result;
 	}
 
 	@Override

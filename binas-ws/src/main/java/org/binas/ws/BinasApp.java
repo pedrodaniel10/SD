@@ -24,14 +24,14 @@ public class BinasApp {
 			return;
 		}
 	
-		BinasPortImpl implementation = binasM.getPort();
+		
 
 		try {
 			binasM.start();
 			
-			
+			BinasPortImpl implementation = binasM.getPort();
 			System.out.println("Invoke ping()...");
-			implementation.testPing("client");
+			System.out.println(implementation.testPing("client"));
 			
 			binasM.awaitConnections();
 		} finally {
