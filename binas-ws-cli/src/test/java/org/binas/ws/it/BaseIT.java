@@ -40,9 +40,11 @@ public class BaseIT {
 		final String wsURL = testProps.getProperty("ws.url");
 
 		if ("true".equalsIgnoreCase(uddiEnabled)) {
+			System.out.println("Client created: {uddiURL = " + uddiURL + ", wsName = " + wsName + "}");
 			client = new BinasClient(uddiURL, wsName);
 		} else {
 			client = new BinasClient(wsURL);
+			System.out.println("Client created: {wsURL = " + wsURL + "}");
 		}
 		client.setVerbose("true".equalsIgnoreCase(verboseEnabled));
 

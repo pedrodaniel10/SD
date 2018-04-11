@@ -32,3 +32,9 @@ bin/
 
 # Maven
 target/
+*.html
+binas-ws/doc/jquery/external/jquery/jquery.js
+*.png
+*.css
+binas-ws/doc/jquery/jquery-ui.js
+*.js

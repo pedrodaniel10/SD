@@ -131,7 +131,7 @@ public class StationPortImpl implements StationPortType {
 
 	// Exception helpers -----------------------------------------------------
 
-	// /** Helper to throw a new NoBinaAvail exception. */
+	 /** Helper to throw a new NoBinaAvail exception. */
 	private void throwNoBinaAvail(final String message) throws
 		NoBinaAvail_Exception {
 		NoBinaAvail faultInfo = new NoBinaAvail();

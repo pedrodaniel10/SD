@@ -7,6 +7,7 @@ import javax.jws.WebService;
 import javax.xml.registry.infomodel.User;
 
 import org.binas.domain.BinasManager;
+import org.binas.domain.User;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.station.ws.cli.StationClientException;
 
@@ -63,14 +64,15 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public int getCredit(String email) throws UserNotExists_Exception {
-		// TODO Auto-generated method stub
-		return 0;
+		User user = User.getUser(email);
+		return user.getCredit();
 	}
 
 	@Override
 	public UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception {
-		// TODO Auto-generated method stub
-		return null;
+		User user = new User(email);
+		
+		return user.getUserView();
 	}
 
 	@Override
