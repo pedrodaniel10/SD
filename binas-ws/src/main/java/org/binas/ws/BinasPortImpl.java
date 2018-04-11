@@ -11,6 +11,7 @@ import org.binas.station.ws.cli.StationClientException;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
 
 @WebService(endpointInterface = "org.binas.ws.BinasPortType",
 wsdlLocation = "binas.1_0.wsdl",
@@ -68,17 +69,17 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public String testPing(String inputMessage) {
 		UDDINaming uddiNaming;
-		Collection<String> uddiList;
+		Collection<UDDIRecord> uddiList;
 		String result = "";
 		try {
 			uddiNaming = this.binasManager.getUddiNaming();
-			uddiList = uddiNaming.list("A47_Station%");
+			uddiList = uddiNaming.listRecords("A47_Station%");
 			
 			result += "Founded " + uddiList.size() + " stations.\n";
 			
-			for(String wsURL : uddiList){
-				result += "[Pinging] " + wsURL + "\n[Answer] ";
-				StationClient stationClient = new StationClient(wsURL);
+			for(UDDIRecord record : uddiList){
+				result += "[Pinging Station = " + record.getOrgName() + "][Answer] ";
+				StationClient stationClient = new StationClient(record.getUrl());
 				result += stationClient.testPing(inputMessage) + "\n";
 			}
 			

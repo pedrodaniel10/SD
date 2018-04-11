@@ -15,9 +15,11 @@ public class BinasClientApp {
         String wsURL = null;
         if (args.length == 1) {
             wsURL = args[0];
+            System.out.println("{wsURL = " + wsURL + "}");
         } else if (args.length >= 2) {
             uddiURL = args[0];
             wsName = args[1];
+            System.out.println("{uddiURL = " + uddiURL + ", wsName = " + wsName + "}");
         }
 
 		System.out.println(BinasClientApp.class.getSimpleName() + " running");
@@ -37,9 +39,9 @@ public class BinasClientApp {
         // the following remote invocations are just basic examples
         // the actual tests are made using JUnit
 
-		// System.out.println("Invoke ping()...");
-		// String result = client.testPing("client");
-		// System.out.print(result);
+		 System.out.println("Invoke ping()...");
+		 String result = client.testPing("client");
+		 System.out.print(result);
         
 	 }
 }

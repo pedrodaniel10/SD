@@ -121,14 +121,14 @@ public class StationEndpointManager {
 
 	/* UDDI */
 
-	void publishToUDDI() throws Exception {
-		//// publish to UDDI
+	private synchronized void publishToUDDI() throws Exception {
+		// publish to UDDI
 		System.out.printf("Publishing '%s' to UDDI at %s%n", this.wsName, this.uddiURL);
 		this.uddiNaming = new UDDINaming(uddiURL);
 		this.uddiNaming.rebind(this.wsName, this.wsURL);
 	}
 
-	void unpublishFromUDDI() {
+	private synchronized void unpublishFromUDDI() {
 		if (this.uddiNaming != null) {
 			// delete from UDDI
 			try {

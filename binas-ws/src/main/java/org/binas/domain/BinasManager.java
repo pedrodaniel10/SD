@@ -36,9 +36,8 @@ public class BinasManager {
 	/** Get UDDI Naming instance for contacting UDDI server 
 	 * @throws UDDINamingException */
 	public synchronized UDDINaming getUddiNaming() throws UDDINamingException {
-		if(uddiNaming == null){
-			this.uddiNaming = new UDDINaming(uddiURL);
-		}
+		this.uddiNaming = new UDDINaming(this.uddiURL);
+
 		return uddiNaming;
 	}
 	 
@@ -115,6 +114,7 @@ public class BinasManager {
 			}
 			throw e;
 		}
+		publishToUDDI();
 	}
 
 	public void awaitConnections() {
@@ -129,6 +129,7 @@ public class BinasManager {
 				System.out.printf("Caught i/o exception when awaiting requests: %s%n", e);
 			}
 		}
+		unpublishFromUDDI();
 	}
 
 	public void stop() throws Exception {
@@ -146,6 +147,27 @@ public class BinasManager {
 			}
 		}
 		this.portImpl = null;
+	}
+	
+	private synchronized void publishToUDDI() throws Exception {
+		// publish to UDDI
+		System.out.printf("Publishing '%s' to UDDI at %s%n", this.wsName, this.uddiURL);
+		this.uddiNaming = new UDDINaming(uddiURL);
+		this.uddiNaming.rebind(this.wsName, this.wsURL);
+		
+	}
+	
+	private synchronized void unpublishFromUDDI() {
+		if (this.uddiNaming != null) {
+			// delete from UDDI
+			try {
+				this.uddiNaming.unbind(this.wsName);
+			} catch (UDDINamingException e) {
+				System.out.printf("Caught exception when unbinding UDDINaming: %s%n", e);
+			}
+			System.out.printf("Deleted '%s' from UDDI%n", this.wsName);
+		}
+		
 	}
 
 }

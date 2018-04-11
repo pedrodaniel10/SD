@@ -28,11 +28,6 @@ public class BinasApp {
 
 		try {
 			binasM.start();
-			
-			BinasPortImpl implementation = binasM.getPort();
-			System.out.println("Invoke ping()...");
-			System.out.println(implementation.testPing("client"));
-			
 			binasM.awaitConnections();
 		} finally {
 			binasM.stop();
