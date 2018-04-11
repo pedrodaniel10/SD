@@ -36,7 +36,27 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public StationView getInfoStation(String stationId) throws InvalidStation_Exception {
-		// TODO Auto-generated method stub
+
+		UDDINaming uddiNaming;
+		Collection<UDDIRecord> uddiList;
+		try {
+			uddiNaming = this.binasManager.getUddiNaming();
+			uddiList = uddiNaming.listRecords("A47_Station%");
+			
+			for(UDDIRecord record : uddiList){
+				if(record.getOrgName() == stationId) {
+					StationClient stationClient = new StationClient(record.getUrl());
+					return stationClient.getInfo();
+				}
+			}
+			
+		} catch (UDDINamingException e) {
+			System.err.printf("Caught exception: %s%n", e);
+		} catch (StationClientException e) {
+			System.err.printf("Caught exception creating StationClientException: %s%n", e);
+		}
+		
+		
 		return null;
 	}
 
