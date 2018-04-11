@@ -61,10 +61,7 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public int getCredit(String email) throws UserNotExists_Exception {
 		User user = User.getUser(email);
-		
-		synchronized(user){
-			return user.getCredit();
-		}
+		return user.getCredit();
 	}
 
 	@Override
