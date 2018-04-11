@@ -65,15 +65,15 @@ public class User {
 	/**
 	 * @return the credit
 	 */
-	public int getCredit() {
+	public synchronized int getCredit() {
 		return credit;
 	}
 	
-	public void addCredit(int amount){
+	public synchronized void addCredit(int amount){
 		this.credit += amount;
 	}
 	
-	public void substractCredit(int amount) throws NoCredit_Exception{
+	public synchronized void substractCredit(int amount) throws NoCredit_Exception{
 		if(this.credit - amount < 0){
 			Exceptions.throwNoCredit("No credit avaiable for the operation.");
 		}
@@ -83,18 +83,18 @@ public class User {
 	/**
 	 * @return the hasBina
 	 */
-	public boolean isHasBina() {
+	public synchronized boolean isHasBina() {
 		return hasBina;
 	}
 
 	/**
 	 * @param hasBina the hasBina to set
 	 */
-	public void setHasBina(boolean hasBina) {
+	public synchronized void setHasBina(boolean hasBina) {
 		this.hasBina = hasBina;
 	}
 	
-	private void addUser(User user){
+	private synchronized void addUser(User user){
 		users.put(user.getEmail(), user);
 	}
 	
@@ -103,7 +103,7 @@ public class User {
 	 * @return user or null if does not exist
 	 * @throws UserNotExists_Exception 
 	 */
-	public static User getUser(String email) throws UserNotExists_Exception{
+	public synchronized static User getUser(String email) throws UserNotExists_Exception{
 		User user = users.get(email);
 		
 		if(user == null){
@@ -113,7 +113,7 @@ public class User {
 	}
 	
 	
-	public UserView getUserView(){
+	public synchronized UserView getUserView(){
 		UserView userView= new UserView();
 		
 		userView.setEmail(this.email);
