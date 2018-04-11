@@ -4,13 +4,13 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.jws.WebService;
-import javax.xml.registry.infomodel.User;
 
 import org.binas.domain.BinasManager;
 import org.binas.domain.User;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.station.ws.cli.StationClientException;
 
+import exceptions.Exceptions;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
@@ -65,7 +65,10 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public int getCredit(String email) throws UserNotExists_Exception {
 		User user = User.getUser(email);
-		return user.getCredit();
+		
+		synchronized(user){
+			return user.getCredit();
+		}
 	}
 
 	@Override
@@ -123,7 +126,16 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize)
 			throws BadInit_Exception {
-		// TODO Auto-generated method stub
+		try {
+			StationClient client = new StationClient(binasManager.getUDDIUrl(), stationId);
+			
+			client.testInit(x, y, capacity, returnPrize);
+		} catch (StationClientException e) {
+			Exceptions.throwBadInit(e.getMessage());
+		} catch (org.binas.station.ws.BadInit_Exception e) {
+			Exceptions.throwBadInit(e.getMessage());
+		}
+		
 		
 	}
 

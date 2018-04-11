@@ -1,5 +1,7 @@
 package exceptions;
 
+import org.binas.ws.BadInit;
+import org.binas.ws.BadInit_Exception;
 import org.binas.ws.EmailExists;
 import org.binas.ws.EmailExists_Exception;
 import org.binas.ws.InvalidEmail;
@@ -42,5 +44,13 @@ public final class Exceptions {
 		NoCredit faultInfo = new NoCredit();
 		faultInfo.setMessage(message);
 		throw new NoCredit_Exception(message, faultInfo);
+	}
+	
+	/** Helper to throw a new BadInit exception. */
+	public static void throwBadInit(final String message) throws
+		BadInit_Exception {
+		BadInit faultInfo = new BadInit();
+		faultInfo.setMessage(message);
+		throw new BadInit_Exception(message, faultInfo);
 	}
 }
