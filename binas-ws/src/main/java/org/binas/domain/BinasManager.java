@@ -4,8 +4,11 @@ import java.io.IOException;
 
 import javax.xml.ws.Endpoint;
 
+
+import org.binas.ws.BadInit_Exception;
 import org.binas.ws.BinasPortImpl;
 
+import exceptions.Exceptions;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
@@ -169,5 +172,13 @@ public class BinasManager {
 		}
 		
 	}
+	
+	public synchronized void init(int userInitialPoints) throws BadInit_Exception {
+ 		if(userInitialPoints < 0 )
+ 			Exceptions.throwBadInit("Value can not be negative.");;
+ 		for(User user: User.getUsers().values()) {
+ 			user.setDefaultCredit(userInitialPoints);
+ 		}
+ 	}
 
 }
