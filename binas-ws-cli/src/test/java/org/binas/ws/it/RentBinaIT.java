@@ -37,10 +37,10 @@ public class RentBinaIT extends BaseIT {
 		client.rentBina(STATION_ID, EMAIL);
 		assertEquals(client.getCredit(EMAIL), 9);
 		StationView sv = client.getInfoStation(STATION_ID);
-		assertEquals(sv.getFreeDocks(), 1);
-		assertEquals(sv.getTotalGets(), 1);
-		assertEquals(sv.getAvailableBinas(), 9);
-		assertEquals(sv.getTotalReturns(), 0);
+		assertEquals(1, sv.getFreeDocks());
+		assertEquals(1, sv.getTotalGets());
+		assertEquals(9, sv.getAvailableBinas());
+		assertEquals(0, sv.getTotalReturns());
 		
 	}
 	
@@ -86,6 +86,7 @@ public class RentBinaIT extends BaseIT {
 	@Test (expected = InvalidStation_Exception.class)
 	public void invalidStation() throws BadInit_Exception {
 		client.testInitStation("CXX_Station1", 22, 7, 1, 2);
+	}
 
 	@Test(expected = UserNotExists_Exception.class)
 	public void userNotExists() throws AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception{
