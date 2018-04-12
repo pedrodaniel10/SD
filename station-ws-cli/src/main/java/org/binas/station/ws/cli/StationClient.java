@@ -79,6 +79,9 @@ public class StationClient implements StationPortType {
 		try {
 			UDDINaming uddiNaming = new UDDINaming(this.uddiURL);
 			this.wsURL = uddiNaming.lookup(this.wsName);
+			if(this.wsURL == null){
+				throw new StationClientException("The wsName = " + this.wsName + " doesn't exist!");
+			}
 		} catch (UDDINamingException e) {
 			throw new StationClientException("Error connecting to UDDI.", e);
 		}

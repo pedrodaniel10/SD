@@ -72,6 +72,10 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public StationView getInfoStation(String stationId) throws InvalidStation_Exception {
 
+		if(stationId == null || stationId.trim().equals("")){
+			Exceptions.throwInvalidStation("StationId cannot be null or blank.");
+		}
+		
 		StationClient stationClient;
 		String uddiURL;
 		try {
@@ -85,7 +89,6 @@ public class BinasPortImpl implements BinasPortType {
 		catch (StationClientException e) {
 			Exceptions.throwInvalidStation("An error has occured while connecting to the Station:" + stationId);
 		}
-		
 		
 		return null;
 	}

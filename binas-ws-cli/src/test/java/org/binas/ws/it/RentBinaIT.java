@@ -1,6 +1,6 @@
 package org.binas.ws.it;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.binas.ws.AlreadyHasBina_Exception;
 import org.binas.ws.BadInit_Exception;
@@ -13,9 +13,7 @@ import org.binas.ws.NoBinaRented_Exception;
 import org.binas.ws.NoCredit_Exception;
 import org.binas.ws.StationView;
 import org.binas.ws.UserNotExists_Exception;
-import org.binas.ws.UserView;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 
@@ -43,8 +41,6 @@ public class RentBinaIT extends BaseIT {
 		assertEquals(0, sv.getTotalReturns());
 		
 	}
-	
-	
 
 	@Test 
 	public void noCredit() throws EmailExists_Exception, InvalidEmail_Exception, BadInit_Exception, 
