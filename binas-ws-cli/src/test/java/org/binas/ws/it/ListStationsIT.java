@@ -61,13 +61,13 @@ public class ListStationsIT extends BaseIT {
 		
 		assertEquals(3, listStations.size());
 		
-		String first = String.format("A47_Station%d", sorted.toArray()[0]);
-		String second = String.format("A47_Station%d", sorted.toArray()[1]);
-		String third = String.format("A47_Station%d", sorted.toArray()[2]);
+		String first = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[0]));
+		String second = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[1]));
+		String third = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[2]));
 		
-		assertEquals(first, listStations.get(0));
-		assertEquals(second, listStations.get(1));
-		assertEquals(third, listStations.get(2));
+		assertEquals(first, listStations.get(0).getId());
+		assertEquals(second, listStations.get(1).getId());
+		assertEquals(third, listStations.get(2).getId());
 	}
 	
 	@After
