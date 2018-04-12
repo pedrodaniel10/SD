@@ -33,7 +33,7 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub		
 		return null;
 	}
 
@@ -115,8 +115,8 @@ public class BinasPortImpl implements BinasPortType {
 			else{
 				user.setHasBina(false);
 				StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
-				stationC.returnBina();
-				user.addCredit(stationC.getBonus());
+				int bonus = stationC.returnBina();
+				user.addCredit(bonus);
 			}
 		}
 		catch (StationClientException e) {
@@ -177,8 +177,7 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public void testInit(int userInitialPoints) throws BadInit_Exception {
-		// TODO Auto-generated method stub
-		
+		binasManager.init(userInitialPoints);
 		
 	}
 	
