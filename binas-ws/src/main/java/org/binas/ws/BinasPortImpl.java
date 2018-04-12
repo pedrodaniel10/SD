@@ -45,14 +45,26 @@ public class BinasPortImpl implements BinasPortType {
 		try {
 			uddiURL = this.binasManager.getUDDIUrl();
 			stationClient = new StationClient(uddiURL, stationId);
-			//Falta retornar a stationview correta
-			return stationClient.getInfo();
-		
+			org.binas.station.ws.StationView stationView = stationClient.getInfo();
+			StationView svBinas = new StationView();
 			
-		} catch (UDDINamingException e) {
-			System.err.printf("Caught exception: %s%n", e);
-		} catch (StationClientException e) {
-			System.err.printf("Caught exception creating StationClientException: %s%n", e);
+			svBinas.setAvailableBinas(stationView.getAvailableBinas());
+			svBinas.setCapacity(stationView.getCapacity());
+			CoordinatesView cv = new CoordinatesView();
+			cv.setX(stationView.getCoordinate().getX());
+			cv.setY(stationView.getCoordinate().getY());
+			svBinas.setCoordinate(cv);
+			svBinas.setFreeDocks(stationView.getFreeDocks());
+			svBinas.setId(stationView.getId());
+			svBinas.setTotalGets(stationView.getTotalGets());
+			svBinas.setTotalReturns(stationView.getTotalReturns());
+			return svBinas;
+			
+			
+			
+		} 
+		catch (StationClientException e) {
+			Exceptions.throwInvalidStation("An error has occured while connecting to the Station:" + stationId);
 		}
 		
 		

@@ -77,3 +77,6 @@ binas-ws/doc/jquery/jquery-ui.js
 *.tmp
 *.c
 *.cpp
+*.lifecyclemapping
+.metadata/.plugins/org.eclipse.m2e.core/nexus/830bc118332e77292949ed1e6d2fabe0/segments_7
+*.container
