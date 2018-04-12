@@ -46,21 +46,8 @@ public class BinasPortImpl implements BinasPortType {
 			uddiURL = this.binasManager.getUDDIUrl();
 			stationClient = new StationClient(uddiURL, stationId);
 			org.binas.station.ws.StationView stationView = stationClient.getInfo();
-			StationView svBinas = new StationView();
 			
-			svBinas.setAvailableBinas(stationView.getAvailableBinas());
-			svBinas.setCapacity(stationView.getCapacity());
-			CoordinatesView cv = new CoordinatesView();
-			cv.setX(stationView.getCoordinate().getX());
-			cv.setY(stationView.getCoordinate().getY());
-			svBinas.setCoordinate(cv);
-			svBinas.setFreeDocks(stationView.getFreeDocks());
-			svBinas.setId(stationView.getId());
-			svBinas.setTotalGets(stationView.getTotalGets());
-			svBinas.setTotalReturns(stationView.getTotalReturns());
-			return svBinas;
-			
-			
+			return stationViewSetter(stationView);	
 			
 		} 
 		catch (StationClientException e) {
@@ -70,6 +57,7 @@ public class BinasPortImpl implements BinasPortType {
 		
 		return null;
 	}
+
 
 	@Override
 	public int getCredit(String email) throws UserNotExists_Exception {
@@ -170,6 +158,21 @@ public class BinasPortImpl implements BinasPortType {
 		// TODO Auto-generated method stub
 		
 		
+	}
+	
+	private StationView stationViewSetter(org.binas.station.ws.StationView stationView) {
+		StationView svBinas = new StationView();
+		svBinas.setAvailableBinas(stationView.getAvailableBinas());
+		svBinas.setCapacity(stationView.getCapacity());
+		CoordinatesView cv = new CoordinatesView();
+		cv.setX(stationView.getCoordinate().getX());
+		cv.setY(stationView.getCoordinate().getY());
+		svBinas.setCoordinate(cv);
+		svBinas.setFreeDocks(stationView.getFreeDocks());
+		svBinas.setId(stationView.getId());
+		svBinas.setTotalGets(stationView.getTotalGets());
+		svBinas.setTotalReturns(stationView.getTotalReturns());
+		return svBinas;	
 	}
 
 }
