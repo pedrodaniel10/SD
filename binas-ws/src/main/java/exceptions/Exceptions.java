@@ -4,8 +4,14 @@ import org.binas.ws.BadInit;
 import org.binas.ws.BadInit_Exception;
 import org.binas.ws.EmailExists;
 import org.binas.ws.EmailExists_Exception;
+import org.binas.ws.FullStation;
+import org.binas.ws.FullStation_Exception;
 import org.binas.ws.InvalidEmail;
 import org.binas.ws.InvalidEmail_Exception;
+import org.binas.ws.InvalidStation;
+import org.binas.ws.InvalidStation_Exception;
+import org.binas.ws.NoBinaRented;
+import org.binas.ws.NoBinaRented_Exception;
 import org.binas.ws.NoCredit;
 import org.binas.ws.NoCredit_Exception;
 import org.binas.ws.UserNotExists;
@@ -53,4 +59,25 @@ public final class Exceptions {
 		faultInfo.setMessage(message);
 		throw new BadInit_Exception(message, faultInfo);
 	}
+	
+	public static void throwInvalidStation(final String message) throws
+		InvalidStation_Exception {
+		InvalidStation invalidStation = new InvalidStation();
+		invalidStation.setMessage(message);
+		throw new InvalidStation_Exception(message, invalidStation);
+	}
+	
+	public static void throwFullStation(final String message) throws
+		FullStation_Exception {
+		FullStation fullStation = new FullStation();
+		fullStation.setMessage(message);
+		throw new FullStation_Exception(message, fullStation);
+	}
+	
+	public static void throwNoBinaRented(final String message) throws
+		NoBinaRented_Exception {
+		NoBinaRented noBinaRented = new NoBinaRented();
+		noBinaRented.setMessage(message);
+		throw new NoBinaRented_Exception(message, noBinaRented);
+}
 }

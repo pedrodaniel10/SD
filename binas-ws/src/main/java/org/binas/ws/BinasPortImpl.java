@@ -81,25 +81,27 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public void returnBina(String stationId, String email)
+	//falta aplicar recompensa!!!!!!!!!!
 			throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
 		
 		try {
 			User user = User.getUser(email);
 			
 			if(!user.isHasBina()) {
-				throw new NoBinaRented_Exception("Given user doesn't have any bine rented.", null);
+				Exceptions.throwNoBinaRented("Given user doesn't have any bine rented.");
 			}
 			else{
 				user.setHasBina(false);
 				StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
 				stationC.returnBina();
+				user.addCredit(stationC.getBonus());
 			}
 		}
 		catch (StationClientException e) {
-			throw new InvalidStation_Exception("Invalid Station Given.", null);
+			Exceptions.throwInvalidStation("Invalid Station Given.");
 		} 
 		catch (NoSlotAvail_Exception e) {
-			throw new FullStation_Exception("No Slot Available at given Station.", null);
+			Exceptions.throwFullStation("No Slot Available at given Station.");
 		}
 		
 	}
@@ -154,6 +156,7 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public void testInit(int userInitialPoints) throws BadInit_Exception {
 		// TODO Auto-generated method stub
+		
 		
 	}
 
