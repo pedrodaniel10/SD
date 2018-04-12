@@ -1,5 +1,7 @@
 package exceptions;
 
+import org.binas.station.ws.NoBinaAvail;
+import org.binas.station.ws.NoBinaAvail_Exception;
 import org.binas.ws.AlreadyHasBina;
 import org.binas.ws.AlreadyHasBina_Exception;
 import org.binas.ws.BadInit;
@@ -89,4 +91,13 @@ public final class Exceptions {
 		alreadyHasBina.setMessage(message);
 		throw new AlreadyHasBina_Exception(message, alreadyHasBina);
 	}
+	
+	public static void throwNoBinaAvail(final String message) throws
+		NoBinaAvail_Exception {
+		NoBinaAvail noBinaAvail = new NoBinaAvail();
+		noBinaAvail.setMessage(message);
+		throw new NoBinaAvail_Exception(message, noBinaAvail);
+	}
+	
+	
 }

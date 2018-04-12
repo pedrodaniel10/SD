@@ -84,18 +84,27 @@ public class BinasPortImpl implements BinasPortType {
 			}
 			else{
 				StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
-				if(stationC.getBina();)
-				user.setHasBina(true);
+				org.binas.station.ws.StationView stationView = stationC.getInfo();
 				
-				stationC.getBina();
-				user.substractCredit(amount);
+				if(stationView.getAvailableBinas() == 0) {
+					Exceptions.throwNoBinaAvail("There are no available binas in the station");
+				}
+				if(user.getCredit() < 1) {
+					Exceptions.throwNoCredit("The user" + user.getEmail() + "does't have enough credits");
+				}
+				
+				else {
+					user.setHasBina(true);
+					stationC.getBina();
+					user.substractCredit(1);
+				}
+				
 			}
 		}
 		catch (StationClientException e) {
 			Exceptions.throwInvalidStation("Invalid Station Given.");
-		} 
-		catch (NoSlotAvail_Exception e) {
-			Exceptions.throwFullStation("No Slot Available at given Station.");
+		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
+			e.printStackTrace();
 		}
 		
 		
