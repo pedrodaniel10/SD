@@ -61,16 +61,11 @@ public class BinasPortImpl implements BinasPortType {
 		
 		view.sort(new StationComparator());
 		
-		if(view.size() < numberOfStations) {
+		if ( view.size() <= numberOfStations  ) {
 			return view;
 		}
 		else {
-			ArrayList<StationView> result = new ArrayList<StationView>(); 
-			int i;
-			for(i=0; i < numberOfStations; i++) {
-				result.add(view.get(i));
-			}
-			return result;
+			return view.subList(0, numberOfStations - 1);
 		}		
 	}
 
