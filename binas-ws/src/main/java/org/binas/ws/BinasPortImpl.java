@@ -44,7 +44,7 @@ public class BinasPortImpl implements BinasPortType {
 		try {
 			uddiURL = this.binasManager.getUDDIUrl();
 			stationClient = new StationClient(uddiURL, stationId);
-			
+			//Falta retornar a stationview correta
 			return stationClient.getInfo();
 		
 			
