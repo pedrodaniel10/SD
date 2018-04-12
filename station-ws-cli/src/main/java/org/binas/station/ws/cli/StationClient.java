@@ -41,6 +41,14 @@ public class StationClient implements StationPortType {
 		return wsURL;
 	}
 
+	public String getWsName()  {
+		return wsName;
+	}
+
+	public void setWsName(String wsName) {
+		this.wsName = wsName;
+	}
+	
 	/** output option **/
 	private boolean verbose = false;
 
