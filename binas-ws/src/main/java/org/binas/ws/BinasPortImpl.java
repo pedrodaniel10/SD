@@ -1,5 +1,6 @@
 package org.binas.ws;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -94,7 +95,7 @@ public class BinasPortImpl implements BinasPortType {
 				user.setHasBina(false);
 				StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
 				stationC.returnBina();
-				user.addCredit(stationC.getBonus());
+//				user.addCredit(stationC.getBonus());
 			}
 		}
 		catch (StationClientException e) {
@@ -106,27 +107,28 @@ public class BinasPortImpl implements BinasPortType {
 		
 	}
 
+//	Tests functions
 	@Override
 	public String testPing(String inputMessage) {
-		UDDINaming uddiNaming;
-		Collection<UDDIRecord> uddiList;
-		String result = "";
+		if(inputMessage == null || inputMessage.trim().equals("")){
+			inputMessage = "friend";
+		}
+		
+		String result = "Hello " + inputMessage + " from " + binasManager.getWsName() + "\n";
 		try {
-			uddiNaming = this.binasManager.getUddiNaming();
-			uddiList = uddiNaming.listRecords("A47_Station%");
+			List<StationClient> listStations = this.getAllStations();
+			result += "Founded " + listStations.size() + " stations.\n";
 			
-			result += "Founded " + uddiList.size() + " stations.\n";
-			
-			for(UDDIRecord record : uddiList){
-				result += "[Pinging Station = " + record.getOrgName() + "][Answer] ";
-				StationClient stationClient = new StationClient(record.getUrl());
+			for(StationClient stationClient : listStations){
+				result += "[Pinging Station = " + stationClient.getWsName() + "][Answer] ";
 				result += stationClient.testPing(inputMessage) + "\n";
 			}
 			
 		} catch (UDDINamingException e) {
 			System.err.printf("Caught exception: %s%n", e);
 		} catch (StationClientException e) {
-			System.err.printf("Caught exception creating StationClientException: %s%n", e);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		return result;
@@ -160,14 +162,36 @@ public class BinasPortImpl implements BinasPortType {
 		
 	}
 	
+//	<-- Auxiliary functions -->
+	private List<StationClient> getAllStations() throws UDDINamingException, StationClientException{
+		UDDINaming uddiNaming = this.binasManager.getUddiNaming();
+		Collection<UDDIRecord> uddiList = uddiNaming.listRecords("A47_Station%");
+		List<StationClient> listStations = new ArrayList<StationClient>();
+		
+		for(UDDIRecord record : uddiList){
+			try{
+				StationClient stationClient = new StationClient(record.getUrl());
+				stationClient.setWsName(record.getOrgName());
+				listStations.add(stationClient);
+			}
+			catch (StationClientException e) {
+				System.err.printf("Caught exception creating StationClientException: %s%n", e);
+			}
+		}
+		
+		return listStations;
+	}
+	
 	private StationView stationViewSetter(org.binas.station.ws.StationView stationView) {
 		StationView svBinas = new StationView();
 		svBinas.setAvailableBinas(stationView.getAvailableBinas());
+		
 		svBinas.setCapacity(stationView.getCapacity());
 		CoordinatesView cv = new CoordinatesView();
 		cv.setX(stationView.getCoordinate().getX());
 		cv.setY(stationView.getCoordinate().getY());
 		svBinas.setCoordinate(cv);
+		
 		svBinas.setFreeDocks(stationView.getFreeDocks());
 		svBinas.setId(stationView.getId());
 		svBinas.setTotalGets(stationView.getTotalGets());
