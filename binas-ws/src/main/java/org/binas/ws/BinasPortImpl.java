@@ -105,12 +105,7 @@ public class BinasPortImpl implements BinasPortType {
 		catch (StationClientException e) {
 			Exceptions.throwInvalidStation("Invalid Station Given.");
 		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
-<<<<<<< HEAD
 			Exceptions.throwNoBinaAvail("There are no available binas in the station");
-=======
-//			TODO
-			e.printStackTrace();
->>>>>>> 9a02fc3a474c82fa7a4a4d7d7f4499231cf36793
 		}
 		
 		
