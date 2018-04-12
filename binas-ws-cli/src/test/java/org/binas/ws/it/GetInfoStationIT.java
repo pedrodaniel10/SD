@@ -10,12 +10,12 @@ import org.junit.Test;
 public class GetInfoStationIT extends BaseIT {
 
 
-	private StationClient stationClient;
-	private String uddiURL;
-	
-	@Test
-	public void success() {
-		
-	}
+//	private StationClient stationClient;
+//	private String uddiURL;
+//	
+//	@Test
+//	public void success() {
+//		
+//	}
 
 }
