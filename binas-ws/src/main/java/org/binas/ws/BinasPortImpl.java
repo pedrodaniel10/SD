@@ -45,19 +45,19 @@ public class BinasPortImpl implements BinasPortType {
 		try {
 			uddiURL = this.binasManager.getUDDIUrl();
 			stationClient = new StationClient(uddiURL, stationId);
-			//Falta retornar a stationview correta
-			return stationClient.getInfo();
-		
+			org.binas.station.ws.StationView stationView = stationClient.getInfo();
 			
-		} catch (UDDINamingException e) {
-			System.err.printf("Caught exception: %s%n", e);
-		} catch (StationClientException e) {
-			System.err.printf("Caught exception creating StationClientException: %s%n", e);
+			return stationViewSetter(stationView);	
+			
+		} 
+		catch (StationClientException e) {
+			Exceptions.throwInvalidStation("An error has occured while connecting to the Station:" + stationId);
 		}
 		
 		
 		return null;
 	}
+
 
 	@Override
 	public int getCredit(String email) throws UserNotExists_Exception {
@@ -157,6 +157,21 @@ public class BinasPortImpl implements BinasPortType {
 	public void testInit(int userInitialPoints) throws BadInit_Exception {
 		binasManager.init(userInitialPoints);
 		
+	}
+	
+	private StationView stationViewSetter(org.binas.station.ws.StationView stationView) {
+		StationView svBinas = new StationView();
+		svBinas.setAvailableBinas(stationView.getAvailableBinas());
+		svBinas.setCapacity(stationView.getCapacity());
+		CoordinatesView cv = new CoordinatesView();
+		cv.setX(stationView.getCoordinate().getX());
+		cv.setY(stationView.getCoordinate().getY());
+		svBinas.setCoordinate(cv);
+		svBinas.setFreeDocks(stationView.getFreeDocks());
+		svBinas.setId(stationView.getId());
+		svBinas.setTotalGets(stationView.getTotalGets());
+		svBinas.setTotalReturns(stationView.getTotalReturns());
+		return svBinas;	
 	}
 
 }
