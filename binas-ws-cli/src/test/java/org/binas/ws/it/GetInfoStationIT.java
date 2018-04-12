@@ -1,6 +1,5 @@
 package org.binas.ws.it;
 
-import org.binas.station.ws.cli.StationClient;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,7 +9,7 @@ import org.junit.Test;
  */
 public class GetInfoStationIT extends BaseIT {
 
-	
+
 	private StationClient stationClient;
 	private String uddiURL;
 	
