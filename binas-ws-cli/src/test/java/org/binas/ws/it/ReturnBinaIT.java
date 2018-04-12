@@ -21,10 +21,10 @@ import junit.framework.Assert;
 
 public class ReturnBinaIT extends BaseIT {
 	
-	String stationID1 = "A47_binas1";
-	String stationID2 = "A47_binas2";
+	String stationID1 = "A47_Station1";
+	String stationID2 = "A47_Station2";
 	String stationIDInvalid = "CXX";
-	String stationID3 = "A47_binas3";
+	String stationID3 = "A47_Station3";
 	
 	String email = "tecnico@sd";
 	String emailNotActive = "sd@tecnico";
@@ -54,6 +54,7 @@ public class ReturnBinaIT extends BaseIT {
 	@Test
 	public void sucess() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
 		client.testInitStation(this.stationID1, 5, 5, 20, 10);
+		client.testInitStation("A47_Station1", 22, 7, 1, 2);
 		client.rentBina(stationID1, email);
 		client.returnBina(stationID1, email);
 
