@@ -52,6 +52,7 @@ public class RentBinaIT extends BaseIT {
 		client.rentBina("A47_Station1", "teste@binas");
 	}
 	
+	@Test (expected = BadInit_Exception.class)
 	public void badInit() throws BadInit_Exception {
 		client.testInitStation("", 22, 7, 1, 2);
 	}
