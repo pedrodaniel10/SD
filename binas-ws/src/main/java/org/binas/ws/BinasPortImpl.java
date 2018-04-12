@@ -95,8 +95,8 @@ public class BinasPortImpl implements BinasPortType {
 				}
 				
 				else {
-					user.setHasBina(true);
 					stationC.getBina();
+					user.setHasBina(true);
 					user.substractCredit(1);
 				}
 				
@@ -105,7 +105,7 @@ public class BinasPortImpl implements BinasPortType {
 		catch (StationClientException e) {
 			Exceptions.throwInvalidStation("Invalid Station Given.");
 		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
-			e.printStackTrace();
+			Exceptions.throwNoBinaAvail("There are no available binas in the station");
 		}
 		
 		
