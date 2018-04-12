@@ -50,187 +50,71 @@ public class ActiveUserIT extends BaseIT {
 		assertFalse(userView.isHasBina());
 	}
 	
-	@Test
-	public void uniqueEmail(){
-		try {
-			client.activateUser("test@binas");
-			client.activateUser("test@binas");
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-			fail();
-		} 
-		catch (EmailExists_Exception e) {
-//			supposed to go here	
-		}
+	@Test(expected = EmailExists_Exception.class)
+	public void uniqueEmail() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser("test@binas");
+		client.activateUser("test@binas");
 	}
 	
-	@Test
-	public void nullEmail(){
-		try {
-			client.activateUser(null);
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-//			supposed to go here
-		} 
-		catch (EmailExists_Exception e) {
-			fail();
-		}
+	@Test(expected = InvalidEmail_Exception.class)
+	public void nullEmail() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser(null);
 	}
 	
-	@Test
-	public void blankEmail(){
-		try {
-			client.activateUser("   ");
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-//			supposed to go here
-		} 
-		catch (EmailExists_Exception e) {
-			fail();
-		}
+	@Test(expected = InvalidEmail_Exception.class)
+	public void blankEmail() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser("   ");
 	}
 	
-	@Test
-	public void emailNoAt(){
-		try {
-			client.activateUser("userdomain");
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-//			supposed to go here
-		} 
-		catch (EmailExists_Exception e) {
-			fail();
-		}
+	@Test(expected = InvalidEmail_Exception.class)
+	public void emailNoAt() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser("userdomain");
 	}
 	
-	@Test
-	public void emailNoUserAndNoDomain(){
-		try {
-			client.activateUser("@");
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-//			supposed to go here
-		} 
-		catch (EmailExists_Exception e) {
-			fail();
-		}
+	@Test(expected = InvalidEmail_Exception.class)
+	public void emailNoUserAndNoDomain() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser("@");
 	}
 	
-	@Test
-	public void emailNoUser(){
-		try {
-			client.activateUser("@domain");
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-//			supposed to go here
-		} 
-		catch (EmailExists_Exception e) {
-			fail();
-		}
+	@Test(expected = InvalidEmail_Exception.class)
+	public void emailNoUser() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser("@domain");
 	}
 	
-	@Test
-	public void emailNoDomain(){
-		try {
-			client.activateUser("user@");
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-//			supposed to go here
-		} 
-		catch (EmailExists_Exception e) {
-			fail();
-		}
+	@Test(expected = InvalidEmail_Exception.class)
+	public void emailNoDomain() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser("user@");
 	}
 	
-	@Test
-	public void emailUserPartEmpty(){
-		try {
-			client.activateUser(".user@domain");
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-//			supposed to go here
-		} 
-		catch (EmailExists_Exception e) {
-			fail();
-		}
+	@Test(expected = InvalidEmail_Exception.class)
+	public void emailUserPartEmpty() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser(".user@domain");
 	}
 	
-	@Test
-	public void emailUserPartEmpty2(){
-		try {
-			client.activateUser("user.@domain");
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-//			supposed to go here
-		} 
-		catch (EmailExists_Exception e) {
-			fail();
-		}
+	@Test(expected = InvalidEmail_Exception.class)
+	public void emailUserPartEmpty2() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser("user.@domain");
 	}
 	
-	@Test
-	public void emailUserPartEmpty3(){
-		try {
-			client.activateUser("user..user@domain");
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-//			supposed to go here
-		} 
-		catch (EmailExists_Exception e) {
-			fail();
-		}
+	@Test(expected = InvalidEmail_Exception.class)
+	public void emailUserPartEmpty3() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser("user..user@domain");
 	}
 	
-	@Test
-	public void emailDomainPartEmpty(){
-		try {
-			client.activateUser("user@.domain");
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-//			supposed to go here
-		} 
-		catch (EmailExists_Exception e) {
-			fail();
-		}
+	@Test(expected = InvalidEmail_Exception.class)
+	public void emailDomainPartEmpty() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser("user@.domain");
 	}
 	
-	@Test
-	public void emailDomainPartEmpty2(){
-		try {
-			client.activateUser("user@domain.");
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-//			supposed to go here
-		} 
-		catch (EmailExists_Exception e) {
-			fail();
-		}
+	@Test(expected = InvalidEmail_Exception.class)
+	public void emailDomainPartEmpty2() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser("user@domain.");
+
 	}
 	
-	@Test
-	public void emailDomainPartEmpty3(){
-		try {
-			client.activateUser("user@domain..domain");
-			fail();
-		} 
-		catch (InvalidEmail_Exception e) {
-//			supposed to go here
-		} 
-		catch (EmailExists_Exception e) {
-			fail();
-		}
+	@Test(expected = InvalidEmail_Exception.class)
+	public void emailDomainPartEmpty3() throws EmailExists_Exception, InvalidEmail_Exception{
+		client.activateUser("user@domain..domain");
 	}
 	
 	@After

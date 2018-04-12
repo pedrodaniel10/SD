@@ -29,11 +29,6 @@ public class RentBinaIT extends BaseIT {
 	private final String STATION_ID = "A47_Binas";
 	private final String EMAIL = "test@binas";
 	
-	@Before
-	public void begin() throws Exception {
-		oneTimeSetup();
-	}
-	
 	@Test
 	public void success() throws AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, EmailExists_Exception, InvalidEmail_Exception, BadInit_Exception {
 
@@ -49,8 +44,12 @@ public class RentBinaIT extends BaseIT {
 		
 	}
 	
-	@Test (expected = NoCredit_Exception.class)
-	public void noCredit() throws EmailExists_Exception, InvalidEmail_Exception, BadInit_Exception, UserNotExists_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception {
+	
+
+	@Test 
+	public void noCredit() throws EmailExists_Exception, InvalidEmail_Exception, BadInit_Exception, 
+		UserNotExists_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, 
+		NoCredit_Exception {
 		client.activateUser("teste@binas");
 		client.testInitStation("A47_Station1", 22, 7, 1, 2);
 		client.testInit(0);
@@ -64,7 +63,6 @@ public class RentBinaIT extends BaseIT {
 		client.rentBina("A47_Station1", "teste@binas");
 		client.rentBina("A47_Station1", "teste@binas");
 	}
-	
 	@Test (expected = EmailExists_Exception.class)
 	public void emailAlreadyExists() throws EmailExists_Exception, InvalidEmail_Exception {
 		client.activateUser("teste@binas");
@@ -88,42 +86,23 @@ public class RentBinaIT extends BaseIT {
 	@Test (expected = InvalidStation_Exception.class)
 	public void invalidStation() throws BadInit_Exception {
 		client.testInitStation("CXX_Station1", 22, 7, 1, 2);
+
+	@Test(expected = UserNotExists_Exception.class)
+	public void userNotExists() throws AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception{
+		client.rentBina("A47_Station1", "teste@binas");	
 	}
 	
-	@Test 
-	public void noBinaAvailStation1(){
-		try {
-//			create user
-			client.activateUser("teste@binas");
-//			define station with 0 capacity
-			client.testInitStation("A47_Station1", 22, 7, 0, 2);
-			
-			client.rentBina("A47_Station1", "teste@binas");
-			fail();
-		} 
-		catch(NoBinaAvail_Exception e){
-			
-		}
-		catch (Exception e) {
-			fail();
-		}
+	@Test(expected = NoBinaAvail_Exception.class)
+	public void noBinaAvailStation1() throws EmailExists_Exception, InvalidEmail_Exception, BadInit_Exception, 
+		AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, 
+		UserNotExists_Exception{
+//		create user
+		client.activateUser("teste@binas");
+//		define station with 0 capacity
+		client.testInitStation("A47_Station1", 22, 7, 0, 2);
 		
-	}
-	
-	
-	@Test
-	public void userNotExists(){
-		try{
-			client.rentBina("A47_Station1", "teste@binas");	
-			fail();
-		}
-		catch(UserNotExists_Exception e){
-//			It should go here
-		}
-		catch(Exception e){
-//			any other exception the test should fail
-			fail();
-		}
+		client.rentBina("A47_Station1", "teste@binas");
+		
 	}
 	
 	
