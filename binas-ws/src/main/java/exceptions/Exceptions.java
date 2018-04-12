@@ -1,7 +1,7 @@
 package exceptions;
 
-import org.binas.station.ws.NoBinaAvail;
-import org.binas.station.ws.NoBinaAvail_Exception;
+import org.binas.ws.NoBinaAvail;
+import org.binas.ws.NoBinaAvail_Exception;
 import org.binas.ws.AlreadyHasBina;
 import org.binas.ws.AlreadyHasBina_Exception;
 import org.binas.ws.BadInit;
