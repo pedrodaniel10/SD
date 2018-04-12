@@ -162,6 +162,10 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public void testClear() {
 		User.clear();
+		List<StationClient> listStations = this.getAllStations();
+		for(StationClient stationClient : listStations){
+			stationClient.testClear();
+		}
 	}
 
 	@Override
