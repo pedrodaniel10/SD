@@ -60,6 +60,12 @@ public class GetInfoStationIT extends BaseIT {
 		client.getInfoStation("WrongStation");
 	}
 	
+	@Test (expected = InvalidStation_Exception.class)
+	public void stationDoesNotExist() throws InvalidStation_Exception {
+		client.getInfoStation("A47_Station4");
+	}
+	
+	
 	@After
 	public void tearDown(){
 		client.testClear();
