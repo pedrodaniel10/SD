@@ -1,7 +1,6 @@
 package org.binas.ws;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -50,11 +49,9 @@ public class BinasPortImpl implements BinasPortType {
 				int y2 = sv2.getCoordinate().getY();
 		    		int distance1 = (x1-this.x)*(x1-this.x) + (y1-this.y)*(y1-this.y);;
 		    		int distance2 = (x2-this.x)*(x2-this.x) + (y2-this.y)*(y2-this.y);;
-		        return distance1 - distance1;
+		        return distance1 - distance2;
 		    }
 		}
-		
-		// TODO Auto-generated method stub
 		
 		List<StationClient> listStations = this.getAllStations();
 		ArrayList<StationView> view = new ArrayList<StationView>();
@@ -74,9 +71,7 @@ public class BinasPortImpl implements BinasPortType {
 				result.add(view.get(i));
 			}
 			return result;
-		}
-		
-		
+		}		
 	}
 
 	@Override

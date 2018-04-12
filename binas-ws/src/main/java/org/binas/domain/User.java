@@ -60,7 +60,7 @@ public class User {
 		return email;
 	}
 	
-	public void setDefaultCredit(int userInitialPoints) {
+	private synchronized static void setDefaultCredit(int userInitialPoints) {
 		DEFAULT_CREDIT = userInitialPoints;
 	}
 
@@ -129,12 +129,11 @@ public class User {
 		return userView;
 	}
 	
-	public synchronized static void init(int userInitialPoints) throws BadInit_Exception {
+	public static void init(int userInitialPoints) throws BadInit_Exception {
  		if(userInitialPoints < 0 )
  			Exceptions.throwBadInit("Value can not be negative.");;
- 		for(User user: users.values()) {
- 			user.setDefaultCredit(userInitialPoints);
- 		}
+ 
+ 		User.setDefaultCredit(userInitialPoints);
  	}
 
 	public static void clear(){
