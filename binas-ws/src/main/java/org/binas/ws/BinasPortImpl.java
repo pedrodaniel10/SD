@@ -7,6 +7,7 @@ import javax.jws.WebService;
 
 import org.binas.domain.BinasManager;
 import org.binas.domain.User;
+import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
 import org.binas.station.ws.cli.StationClientException;
 
@@ -81,7 +82,25 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public void returnBina(String stationId, String email)
 			throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
-		// TODO Auto-generated method stub
+		
+		try {
+			User user = User.getUser(email);
+			
+			if(!user.isHasBina()) {
+				throw new NoBinaRented_Exception("Given user doesn't have any bine rented.", null);
+			}
+			else{
+				user.setHasBina(false);
+				StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
+				stationC.returnBina();
+			}
+		}
+		catch (StationClientException e) {
+			throw new InvalidStation_Exception("Invalid Station Given.", null);
+		} 
+		catch (NoSlotAvail_Exception e) {
+			throw new FullStation_Exception("No Slot Available at given Station.", null);
+		}
 		
 	}
 
