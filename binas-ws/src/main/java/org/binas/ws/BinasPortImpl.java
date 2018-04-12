@@ -138,18 +138,15 @@ public class BinasPortImpl implements BinasPortType {
 		}
 		
 		String result = "Hello " + inputMessage + " from " + binasManager.getWsName() + "\n";
-		try {
-			List<StationClient> listStations = this.getAllStations();
-			result += "Founded " + listStations.size() + " stations.\n";
+
+		List<StationClient> listStations = this.getAllStations();
+		result += "Founded " + listStations.size() + " stations.\n";
+		
+		for(StationClient stationClient : listStations){
+			result += "[Pinging Station = " + stationClient.getWsName() + "][Answer] ";
+			result += stationClient.testPing(inputMessage) + "\n";
+		}
 			
-			for(StationClient stationClient : listStations){
-				result += "[Pinging Station = " + stationClient.getWsName() + "][Answer] ";
-				result += stationClient.testPing(inputMessage) + "\n";
-			}
-			
-		} catch (UDDINamingException e) {
-			System.err.printf("Caught exception: %s%n", e);
-		} 
 		return result;
 	}
 
@@ -181,10 +178,18 @@ public class BinasPortImpl implements BinasPortType {
 	}
 	
 //	<-- Auxiliary functions -->
-	private List<StationClient> getAllStations() throws UDDINamingException{
-		UDDINaming uddiNaming = this.binasManager.getUddiNaming();
-		Collection<UDDIRecord> uddiList = uddiNaming.listRecords("A47_Station%");
+	private List<StationClient> getAllStations() {
+		UDDINaming uddiNaming;
+		Collection<UDDIRecord> uddiList;
 		List<StationClient> listStations = new ArrayList<StationClient>();
+		
+		try {
+			uddiNaming = this.binasManager.getUddiNaming();
+			uddiList = uddiNaming.listRecords("A47_Station%");
+		} catch (UDDINamingException e) {
+			System.err.printf("Caught exception connecting to UDDI: %s%n", e);
+			return listStations;
+		}
 		
 		for(UDDIRecord record : uddiList){
 			try{
