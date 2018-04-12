@@ -3,6 +3,7 @@ package org.binas.domain;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.binas.ws.BadInit_Exception;
 import org.binas.ws.EmailExists;
 import org.binas.ws.EmailExists_Exception;
 import org.binas.ws.InvalidEmail_Exception;
@@ -57,10 +58,6 @@ public class User {
 	 */
 	public String getEmail() {
 		return email;
-	}
-	
-	public static Map<String, User> getUsers(){
-		return users;
 	}
 	
 	public void setDefaultCredit(int userInitialPoints) {
@@ -131,6 +128,14 @@ public class User {
 		
 		return userView;
 	}
+	
+	public synchronized static void init(int userInitialPoints) throws BadInit_Exception {
+ 		if(userInitialPoints < 0 )
+ 			Exceptions.throwBadInit("Value can not be negative.");;
+ 		for(User user: users.values()) {
+ 			user.setDefaultCredit(userInitialPoints);
+ 		}
+ 	}
 
 	public static void clear(){
 		users.clear();

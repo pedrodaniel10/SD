@@ -172,13 +172,5 @@ public class BinasManager {
 		}
 		
 	}
-	
-	public synchronized void init(int userInitialPoints) throws BadInit_Exception {
- 		if(userInitialPoints < 0 )
- 			Exceptions.throwBadInit("Value can not be negative.");;
- 		for(User user: User.getUsers().values()) {
- 			user.setDefaultCredit(userInitialPoints);
- 		}
- 	}
 
 }

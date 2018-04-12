@@ -1,7 +1,9 @@
 package org.binas.ws;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.jws.WebService;
@@ -34,8 +36,47 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
-		// TODO Auto-generated method stub		
-		return null;
+		
+		class StationComparator implements Comparator<StationView> {
+
+			int x = coordinates.getX();
+			int y = coordinates.getY();
+			
+		    @Override
+		    public int compare(StationView sv1, StationView sv2) {
+		    		int x1 = sv1.getCoordinate().getX();
+				int y1 = sv1.getCoordinate().getY();
+				int x2 = sv2.getCoordinate().getX();
+				int y2 = sv2.getCoordinate().getY();
+		    		int distance1 = (x1-this.x)*(x1-this.x) + (y1-this.y)*(y1-this.y);;
+		    		int distance2 = (x2-this.x)*(x2-this.x) + (y2-this.y)*(y2-this.y);;
+		        return distance1 - distance1;
+		    }
+		}
+		
+		// TODO Auto-generated method stub
+		
+		List<StationClient> listStations = this.getAllStations();
+		ArrayList<StationView> view = new ArrayList<StationView>();
+		for (StationClient stationClient: listStations) {
+			view.add(stationViewSetter(stationClient.getInfo()));
+		}	
+		
+		view.sort(new StationComparator());
+		
+		if(view.size() < numberOfStations) {
+			return view;
+		}
+		else {
+			ArrayList<StationView> result = new ArrayList<StationView>(); 
+			int i;
+			for(i=0; i < numberOfStations; i++) {
+				result.add(view.get(i));
+			}
+			return result;
+		}
+		
+		
 	}
 
 	@Override
@@ -186,7 +227,7 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public void testInit(int userInitialPoints) throws BadInit_Exception {
-		binasManager.init(userInitialPoints);
+		User.init(userInitialPoints);
 		
 	}
 	
