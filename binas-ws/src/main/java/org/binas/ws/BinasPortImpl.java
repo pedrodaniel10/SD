@@ -129,8 +129,7 @@ public class BinasPortImpl implements BinasPortType {
 					stationC.getBina();
 					user.setHasBina(true);
 					user.substractCredit(1);
-				}
-				
+				}		
 			}
 		}
 		catch (StationClientException e) {
@@ -144,7 +143,6 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public void returnBina(String stationId, String email)
-	//falta aplicar recompensa!!!!!!!!!!
 			throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
 		
 		try {
