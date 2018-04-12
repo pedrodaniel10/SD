@@ -91,3 +91,5 @@ binas-ws/doc/jquery/jquery-ui.js
 .metadata/.plugins/org.eclipse.m2e.core/nexus/fcbdc41bb30d8be337e28e3304b58453/segments_4
 .recommenders/index/http___download_eclipse_org_recommenders_models_oxygen_/segments_3
 .metadata/.plugins/org.eclipse.m2e.core/nexus/fcbdc41bb30d8be337e28e3304b58453/segments_6
+.metadata/.plugins/org.eclipse.m2e.core/nexus/830bc118332e77292949ed1e6d2fabe0/segments_b
+*.launch

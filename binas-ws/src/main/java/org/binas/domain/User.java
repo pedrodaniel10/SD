@@ -137,6 +137,7 @@ public class User {
  	}
 
 	public static void clear(){
+		DEFAULT_CREDIT = 10;
 		users.clear();
 	}
 }
