@@ -65,7 +65,7 @@ public class BinasPortImpl implements BinasPortType {
 			return view;
 		}
 		else {
-			return view.subList(0, numberOfStations - 1);
+			return view.subList(0, numberOfStations);
 		}		
 	}
 

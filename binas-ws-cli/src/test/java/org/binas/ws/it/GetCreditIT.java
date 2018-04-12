@@ -2,9 +2,15 @@ package org.binas.ws.it;
 
 import static org.junit.Assert.*;
 
+import org.binas.ws.AlreadyHasBina_Exception;
 import org.binas.ws.BadInit_Exception;
 import org.binas.ws.EmailExists_Exception;
+import org.binas.ws.FullStation_Exception;
 import org.binas.ws.InvalidEmail_Exception;
+import org.binas.ws.InvalidStation_Exception;
+import org.binas.ws.NoBinaAvail_Exception;
+import org.binas.ws.NoBinaRented_Exception;
+import org.binas.ws.NoCredit_Exception;
 import org.binas.ws.UserNotExists_Exception;
 import org.junit.After;
 import org.junit.Test;
@@ -62,6 +68,22 @@ public class GetCreditIT extends BaseIT {
 	@Test(expected = UserNotExists_Exception.class)
 	public void userNotExists() throws UserNotExists_Exception{
 		client.getCredit(EMAIL);
+	}
+	
+	@Test
+	public void testSetBonus() throws BadInit_Exception, EmailExists_Exception, 
+		InvalidEmail_Exception, UserNotExists_Exception, AlreadyHasBina_Exception, 
+		InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, FullStation_Exception, 
+		NoBinaRented_Exception{
+		client.testInit(10);
+		client.testInitStation("A47_Station1", 22, 7, 6, 2);
+		client.activateUser("test@binas");
+		
+		assertEquals(10, client.getCredit("test@binas"));
+		client.rentBina("A47_Station1", "test@binas");
+		assertEquals(9, client.getCredit("test@binas"));
+		client.returnBina("A47_Station1", "test@binas");
+		assertEquals(11, client.getCredit("test@binas"));
 	}
 	
 	@After
