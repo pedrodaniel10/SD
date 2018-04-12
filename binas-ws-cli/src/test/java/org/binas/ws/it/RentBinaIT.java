@@ -63,6 +63,7 @@ public class RentBinaIT extends BaseIT {
 	public void userNotExists(){
 		try{
 			client.rentBina("A47_Station1", "teste@binas");	
+			fail();
 		}
 		catch(UserNotExists_Exception e){
 //			It should go here
@@ -82,6 +83,7 @@ public class RentBinaIT extends BaseIT {
 			client.testInitStation("A47_Station1", 22, 7, 0, 2);
 			
 			client.rentBina("A47_Station1", "teste@binas");
+			fail();
 		} 
 		catch(NoBinaAvail_Exception e){
 			
