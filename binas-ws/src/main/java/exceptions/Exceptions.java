@@ -1,5 +1,7 @@
 package exceptions;
 
+import org.binas.ws.AlreadyHasBina;
+import org.binas.ws.AlreadyHasBina_Exception;
 import org.binas.ws.BadInit;
 import org.binas.ws.BadInit_Exception;
 import org.binas.ws.EmailExists;
@@ -79,5 +81,12 @@ public final class Exceptions {
 		NoBinaRented noBinaRented = new NoBinaRented();
 		noBinaRented.setMessage(message);
 		throw new NoBinaRented_Exception(message, noBinaRented);
-}
+	}
+	
+	public static void throwAlreadyHasBina(final String message) throws
+		AlreadyHasBina_Exception {
+		AlreadyHasBina alreadyHasBina = new AlreadyHasBina();
+		alreadyHasBina.setMessage(message);
+		throw new AlreadyHasBina_Exception(message, alreadyHasBina);
+	}
 }

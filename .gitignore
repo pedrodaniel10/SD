@@ -80,3 +80,8 @@ binas-ws/doc/jquery/jquery-ui.js
 *.lifecyclemapping
 .metadata/.plugins/org.eclipse.m2e.core/nexus/830bc118332e77292949ed1e6d2fabe0/segments_7
 *.container
+*.del
+.metadata/.plugins/org.eclipse.m2e.core/nexus/05b0fe8524860bd73cbb07ef30fb34cc/segments_3
+.metadata/.plugins/org.eclipse.m2e.core/nexus/830bc118332e77292949ed1e6d2fabe0/segments_8
+.metadata/.plugins/org.eclipse.m2e.core/nexus/fcbdc41bb30d8be337e28e3304b58453/segments_3
+.recommenders/index/http___download_eclipse_org_recommenders_models_oxygen_/segments_2

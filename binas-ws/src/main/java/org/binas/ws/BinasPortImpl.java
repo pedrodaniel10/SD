@@ -76,6 +76,28 @@ public class BinasPortImpl implements BinasPortType {
 	public void rentBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception,
 			NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception {
 		
+		try {
+			User user = User.getUser(email);
+			
+			if(user.isHasBina()) {
+				Exceptions.throwAlreadyHasBina("Given user already has a bina rented.");
+			}
+			else{
+				StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
+				if(stationC.getBina();)
+				user.setHasBina(true);
+				
+				stationC.getBina();
+				user.substractCredit(amount);
+			}
+		}
+		catch (StationClientException e) {
+			Exceptions.throwInvalidStation("Invalid Station Given.");
+		} 
+		catch (NoSlotAvail_Exception e) {
+			Exceptions.throwFullStation("No Slot Available at given Station.");
+		}
+		
 		
 	}
 
@@ -88,7 +110,7 @@ public class BinasPortImpl implements BinasPortType {
 			User user = User.getUser(email);
 			
 			if(!user.isHasBina()) {
-				Exceptions.throwNoBinaRented("Given user doesn't have any bine rented.");
+				Exceptions.throwNoBinaRented("Given user doesn't have any bina rented.");
 			}
 			else{
 				user.setHasBina(false);
