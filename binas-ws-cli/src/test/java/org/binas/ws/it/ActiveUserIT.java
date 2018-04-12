@@ -2,8 +2,10 @@ package org.binas.ws.it;
 
 import static org.junit.Assert.*;
 
+import org.binas.ws.BadInit_Exception;
 import org.binas.ws.EmailExists_Exception;
 import org.binas.ws.InvalidEmail_Exception;
+import org.binas.ws.UserNotExists_Exception;
 import org.binas.ws.UserView;
 import org.junit.After;
 import org.junit.Test;
@@ -25,6 +27,17 @@ public class ActiveUserIT extends BaseIT {
 		
 		assertEquals("test.test.test@binas", userView.getEmail());
 		assertEquals(10, userView.getCredit().intValue());
+		assertFalse(userView.isHasBina());
+	}
+	
+	@Test
+	public void sucessOtherDefaultCredit() throws UserNotExists_Exception, 
+		EmailExists_Exception, InvalidEmail_Exception, BadInit_Exception{
+		client.testInit(20);
+		UserView userView = client.activateUser("test@binas");
+		
+		assertEquals("test@binas", userView.getEmail());
+		assertEquals(20, userView.getCredit().intValue());
 		assertFalse(userView.isHasBina());
 	}
 	
