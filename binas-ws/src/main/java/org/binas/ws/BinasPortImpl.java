@@ -34,7 +34,7 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub		
 		return null;
 	}
 
@@ -77,6 +77,28 @@ public class BinasPortImpl implements BinasPortType {
 	public void rentBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception,
 			NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception {
 		
+		try {
+			User user = User.getUser(email);
+			
+			if(user.isHasBina()) {
+				Exceptions.throwAlreadyHasBina("Given user already has a bina rented.");
+			}
+			else{
+				StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
+				if(stationC.getBina();)
+				user.setHasBina(true);
+				
+				stationC.getBina();
+				user.substractCredit(amount);
+			}
+		}
+		catch (StationClientException e) {
+			Exceptions.throwInvalidStation("Invalid Station Given.");
+		} 
+		catch (NoSlotAvail_Exception e) {
+			Exceptions.throwFullStation("No Slot Available at given Station.");
+		}
+		
 		
 	}
 
@@ -89,13 +111,14 @@ public class BinasPortImpl implements BinasPortType {
 			User user = User.getUser(email);
 			
 			if(!user.isHasBina()) {
-				Exceptions.throwNoBinaRented("Given user doesn't have any bine rented.");
+				Exceptions.throwNoBinaRented("Given user doesn't have any bina rented.");
 			}
 			else{
 				user.setHasBina(false);
 				StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
-				stationC.returnBina();
-//				user.addCredit(stationC.getBonus());
+
+				int bonus = stationC.returnBina();
+				user.addCredit(bonus);
 			}
 		}
 		catch (StationClientException e) {
@@ -126,11 +149,7 @@ public class BinasPortImpl implements BinasPortType {
 			
 		} catch (UDDINamingException e) {
 			System.err.printf("Caught exception: %s%n", e);
-		} catch (StationClientException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		} 
 		return result;
 	}
 
@@ -157,13 +176,12 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public void testInit(int userInitialPoints) throws BadInit_Exception {
-		// TODO Auto-generated method stub
-		
+		binasManager.init(userInitialPoints);
 		
 	}
 	
 //	<-- Auxiliary functions -->
-	private List<StationClient> getAllStations() throws UDDINamingException, StationClientException{
+	private List<StationClient> getAllStations() throws UDDINamingException{
 		UDDINaming uddiNaming = this.binasManager.getUddiNaming();
 		Collection<UDDIRecord> uddiList = uddiNaming.listRecords("A47_Station%");
 		List<StationClient> listStations = new ArrayList<StationClient>();

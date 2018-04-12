@@ -58,6 +58,14 @@ public class User {
 	public String getEmail() {
 		return email;
 	}
+	
+	public static Map<String, User> getUsers(){
+		return users;
+	}
+	
+	public void setDefaultCredit(int userInitialPoints) {
+		DEFAULT_CREDIT = userInitialPoints;
+	}
 
 	/**
 	 * @return the credit
