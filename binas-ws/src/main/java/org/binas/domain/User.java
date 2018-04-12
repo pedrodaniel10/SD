@@ -17,7 +17,7 @@ public class User {
 	
 	private static int DEFAULT_CREDIT = 10;
 	
-	private String email;
+	private final String email;
 	private int credit;
 	private boolean hasBina;
 	
@@ -46,11 +46,8 @@ public class User {
 		if(email == null || email.trim().equals("")){
 			Exceptions.throwInvalidEmail("The email can not be null or empty.");
 		}
-		else if(users.containsKey(email)){
-			Exceptions.throwEmailExists("The email " + email + "already exists.");
-		}
 		else if(!email.matches(regex)){
-			Exceptions.throwInvalidEmail("The email " + email + "format is invalid.");
+			Exceptions.throwInvalidEmail("The email " + email + " format is invalid.");
 		}
 		
 	}
@@ -94,7 +91,11 @@ public class User {
 		this.hasBina = hasBina;
 	}
 	
-	private synchronized void addUser(User user){
+	private synchronized void addUser(User user) throws EmailExists_Exception{
+		if(users.containsKey(user.getEmail())){
+			Exceptions.throwEmailExists("The email " + user.getEmail() + " already exists.");
+			return;
+		}
 		users.put(user.getEmail(), user);
 	}
 	
@@ -103,7 +104,7 @@ public class User {
 	 * @return user or null if does not exist
 	 * @throws UserNotExists_Exception 
 	 */
-	public synchronized static User getUser(String email) throws UserNotExists_Exception{
+	public static User getUser(String email) throws UserNotExists_Exception{
 		User user = users.get(email);
 		
 		if(user == null){
