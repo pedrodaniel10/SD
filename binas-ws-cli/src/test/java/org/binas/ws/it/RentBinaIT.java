@@ -24,7 +24,6 @@ import org.junit.Test;
 
 public class RentBinaIT extends BaseIT {
 	
-	private final String STATION_ID = "A47_Binas";
 	private final String EMAIL = "test@binas";
 	
 	@Test
@@ -32,9 +31,9 @@ public class RentBinaIT extends BaseIT {
 
 		client.activateUser(EMAIL);
 		client.testInitStation("A47_Station1", 22, 7, 10, 2);
-		client.rentBina(STATION_ID, EMAIL);
+		client.rentBina("A47_Station1", EMAIL);
 		assertEquals(client.getCredit(EMAIL), 9);
-		StationView sv = client.getInfoStation(STATION_ID);
+		StationView sv = client.getInfoStation("A47_Station1");
 		assertEquals(1, sv.getFreeDocks());
 		assertEquals(1, sv.getTotalGets());
 		assertEquals(9, sv.getAvailableBinas());
@@ -58,11 +57,6 @@ public class RentBinaIT extends BaseIT {
 		client.testInitStation("A47_Station1", 22, 7, 1, 2);
 		client.rentBina("A47_Station1", "teste@binas");
 		client.rentBina("A47_Station1", "teste@binas");
-	}
-	
-	@Test (expected = BadInit_Exception.class)
-	public void badInit() throws BadInit_Exception {
-		client.testInitStation("", 22, 7, 1, 2);
 	}
 	
 	@Test (expected = EmailExists_Exception.class)
