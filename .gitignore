@@ -93,3 +93,15 @@ binas-ws/doc/jquery/jquery-ui.js
 .metadata/.plugins/org.eclipse.m2e.core/nexus/fcbdc41bb30d8be337e28e3304b58453/segments_6
 .metadata/.plugins/org.eclipse.m2e.core/nexus/830bc118332e77292949ed1e6d2fabe0/segments_b
 *.launch
+*.cfe
+*.si
+.metadata/.plugins/org.eclipse.epp.logging.aeri.ide/org.eclipse.epp.logging.aeri.ide.server/local-history.lucene60/segments_1
+.metadata/.plugins/org.eclipse.m2e.core/nexus/05b0fe8524860bd73cbb07ef30fb34cc/segments_5
+.metadata/.plugins/org.eclipse.m2e.core/nexus/830bc118332e77292949ed1e6d2fabe0/segments_c
+.metadata/.plugins/org.eclipse.m2e.core/nexus/fcbdc41bb30d8be337e28e3304b58453/segments_7
+.metadata/.plugins/org.eclipse.epp.logging.aeri.ide/org.eclipse.epp.logging.aeri.ide.server/http-cache.lucene60/segments_1
+.metadata/.plugins/org.eclipse.m2e.core/nexus/05b0fe8524860bd73cbb07ef30fb34cc/segments_6
+.metadata/.plugins/org.eclipse.m2e.core/nexus/830bc118332e77292949ed1e6d2fabe0/segments_d
+.metadata/.plugins/org.eclipse.m2e.core/nexus/fcbdc41bb30d8be337e28e3304b58453/segments_8
+/.metadata/
+/.recommenders/
