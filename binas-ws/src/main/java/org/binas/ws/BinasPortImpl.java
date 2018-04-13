@@ -47,8 +47,8 @@ public class BinasPortImpl implements BinasPortType {
 				int y1 = sv1.getCoordinate().getY();
 				int x2 = sv2.getCoordinate().getX();
 				int y2 = sv2.getCoordinate().getY();
-		    		int distance1 = (x1-this.x)*(x1-this.x) + (y1-this.y)*(y1-this.y);;
-		    		int distance2 = (x2-this.x)*(x2-this.x) + (y2-this.y)*(y2-this.y);;
+		    		int distance1 = (int) (Math.pow(x1-this.x, 2) + Math.pow(y1-this.y, 2));
+		    		int distance2 = (int) (Math.pow(x2-this.x, 2) + Math.pow(y2-this.y, 2));
 		        return distance1 - distance2;
 		    }
 		}
@@ -59,8 +59,9 @@ public class BinasPortImpl implements BinasPortType {
 			//adiciona a lista view a conversao de StationView Station para StationView Binas
 			view.add(stationViewSetter(stationClient.getInfo()));
 		}	
+
 		//ordena a lista view consoante o comparador StationComparator
-		view.sort(new StationComparator().reversed());
+		view.sort(new StationComparator());
 		
 		//se o tamanho da lista de estações for menor do que a que eles pretendem então devolve a lista ordenada
 		if ( view.size() <= numberOfStations  ) {
@@ -68,7 +69,7 @@ public class BinasPortImpl implements BinasPortType {
 		}
 		//caso contrario devolve uma sub lista da lista ordenada desde o indice 0 ate ao indice numberOfStations-1
 		else {
-			return view.subList(0, numberOfStations-1);
+			return view.subList(0, numberOfStations);
 		}		
 	}
 
@@ -113,10 +114,15 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public void rentBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception,
 			NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception {
+		if(stationId == null || stationId.trim().equals(""))
+			Exceptions.throwInvalidStation("Invalid Station Given, can not be null or empty.");
+		
+		if(email == null || email.trim().equals(""))
+			Exceptions.throwUserNotExists("Invalid Station Given, can not be null or empty.");
+		
+		User user = User.getUser(email);
 		
 		try {
-			User user = User.getUser(email);
-			
 			if(user.isHasBina()) {
 				Exceptions.throwAlreadyHasBina("Given user already has a bina rented.");
 			}

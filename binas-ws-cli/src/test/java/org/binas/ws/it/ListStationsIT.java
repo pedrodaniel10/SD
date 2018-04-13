@@ -105,8 +105,8 @@ public class ListStationsIT extends BaseIT {
 	
 	private static Set<Integer> sortStations(){
 		orderedMap.put(distanceSquaredBetweenPoints(STATION_1_X, STATION_1_Y, USER_X, USER_Y), 1);
-		orderedMap.put(distanceSquaredBetweenPoints(STATION_2_X, STATION_2_Y, USER_X, USER_Y), 1);
-		orderedMap.put(distanceSquaredBetweenPoints(STATION_3_X, STATION_3_Y, USER_X, USER_Y), 1);
+		orderedMap.put(distanceSquaredBetweenPoints(STATION_2_X, STATION_2_Y, USER_X, USER_Y), 2);
+		orderedMap.put(distanceSquaredBetweenPoints(STATION_3_X, STATION_3_Y, USER_X, USER_Y), 3);
 		return orderedMap.keySet();
 	}
 	
