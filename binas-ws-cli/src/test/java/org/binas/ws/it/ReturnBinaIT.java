@@ -172,6 +172,7 @@ public class ReturnBinaIT extends BaseIT {
 		client.testInitStation(this.stationID1, 5, 5, 20, 10);
 		client.rentBina(stationID1, email);
 		client.returnBina(stationID1, email);
+		client.returnBina(stationID1, email);
 
 		assertEquals(20, client.getInfoStation(stationID1).getAvailableBinas());
 		assertEquals(19, client.getCredit(email));
@@ -181,6 +182,7 @@ public class ReturnBinaIT extends BaseIT {
 	public void LreadyReturnedDifferentStation() throws BadInit_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception, AlreadyHasBina_Exception{
 		client.testInitStation(this.stationID1, 5, 5, 20, 10);
 		client.rentBina(stationID1, email);
+		client.returnBina(stationID1, email);
 		client.returnBina(stationID2, email);
 
 		assertEquals(20, client.getInfoStation(stationID1).getAvailableBinas());
