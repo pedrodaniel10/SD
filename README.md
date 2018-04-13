@@ -1,6 +1,6 @@
-## Projeto de Sistemas Distribuídos 2017/18 #
+# Projeto de Sistemas Distribuídos 2017/18
 
-# Grupo A47
+## Grupo A47
 
 |   Number   |          Name           |                  Email                    |   Name GitHUb  |
 | ---------- | ----------------------- | ----------------------------------------- | ---------------|
