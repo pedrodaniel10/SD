@@ -1,15 +1,9 @@
-# Projeto de Sistemas Distribuídos 2017/18 #
+## Projeto de Sistemas Distribuídos 2017/18 #
 
-Grupo CXX
-*(preencher com identificador de grupo e depois apagar esta linha)*
+# Grupo A47
 
-... ... ...
-
-... ... ...
-
-... ... ...
-*(preencher com nome, número e email de membro do grupo e depois apagar esta linha)*
-
-
--------------------------------------------------------------------------------
-**FIM**
+|   Number   |          Name           |                  Email                    |   Name GitHUb  |
+| ---------- | ----------------------- | ----------------------------------------- | ---------------|
+|   83521    |     Mariana Mendes      |        marianagprmendes@gmail.com         |   mgprmendes   |
+|   83539    |     Pedro Caldeira      |        caldeira.a.pedro@gmail.com         | PedroACaldeira |
+|   83540    |      Pedro Lopes        |    pedro.daniel.l@tecnico.ulisboa.pt      | pedrodaniel10  |
