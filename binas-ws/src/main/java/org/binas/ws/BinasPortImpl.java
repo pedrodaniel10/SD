@@ -147,6 +147,11 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public void returnBina(String stationId, String email)
 			throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
+		if(stationId == null || stationId.trim().equals(""))
+			Exceptions.throwInvalidStation("Invalid Station Given, can not be null or empty.");
+		
+		if(email == null || email.trim().equals(""))
+			Exceptions.throwUserNotExists("Invalid Station Given, can not be null or empty.");
 		
 		try {
 			User user = User.getUser(email);
