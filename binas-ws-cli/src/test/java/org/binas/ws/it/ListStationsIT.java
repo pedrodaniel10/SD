@@ -43,7 +43,6 @@ public class ListStationsIT extends BaseIT {
 	private static SortedMap<Integer,Integer> orderedMap = new TreeMap<Integer,Integer>();
 	private static final Set<Integer> sorted = sortStations();
 	
-	
 	@Before
 	public void setUp() throws BadInit_Exception{
 		client.testInitStation(STATION_1, STATION_1_X, STATION_1_Y, STATION_1_CAPACITY, STATION_1_BONUS);
@@ -56,7 +55,8 @@ public class ListStationsIT extends BaseIT {
 	}
 	
 	@Test
-	public void sucess(){
+	public void sucess1(){
+		//caso em que o numberOfStations e igual ao numero total de estacoes
 		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(3, coordinates);
 		
 		assertEquals(3, listStations.size());
@@ -68,6 +68,34 @@ public class ListStationsIT extends BaseIT {
 		assertEquals(first, listStations.get(0).getId());
 		assertEquals(second, listStations.get(1).getId());
 		assertEquals(third, listStations.get(2).getId());
+	}
+	
+	@Test
+	public void sucess2(){
+		//caso em que o numberOfStations e maior que o numero total de estacoes
+		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(5, coordinates);
+		
+		assertEquals(3, listStations.size());
+		
+		String first = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[0]));
+		String second = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[1]));
+		String third = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[2]));
+		
+		assertEquals(first, listStations.get(0).getId());
+		assertEquals(second, listStations.get(1).getId());
+		assertEquals(third, listStations.get(2).getId());
+	}
+	
+	@Test
+	public void sucess3(){
+		//caso em que o numberOfStations e menor que o nuemro total de estacoes
+		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(1, coordinates);
+		
+		assertEquals(1, listStations.size());
+		
+		String first = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[0]));
+		
+		assertEquals(first, listStations.get(0).getId());
 	}
 	
 	@After

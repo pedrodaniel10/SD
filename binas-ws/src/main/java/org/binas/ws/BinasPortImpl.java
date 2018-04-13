@@ -37,7 +37,7 @@ public class BinasPortImpl implements BinasPortType {
 	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
 		
 		class StationComparator implements Comparator<StationView> {
-
+			//comparador que compara duas stations consante a distancia até as coordenadas (x, y) dadas
 			int x = coordinates.getX();
 			int y = coordinates.getY();
 			
@@ -56,16 +56,19 @@ public class BinasPortImpl implements BinasPortType {
 		List<StationClient> listStations = this.getAllStations();
 		ArrayList<StationView> view = new ArrayList<StationView>();
 		for (StationClient stationClient: listStations) {
+			//adiciona a lista view a conversao de StationView Station para StationView Binas
 			view.add(stationViewSetter(stationClient.getInfo()));
 		}	
+		//ordena a lista view consoante o comparador StationComparator
+		view.sort(new StationComparator().reversed());
 		
-		view.sort(new StationComparator());
-		
+		//se o tamanho da lista de estações for menor do que a que eles pretendem então devolve a lista ordenada
 		if ( view.size() <= numberOfStations  ) {
 			return view;
 		}
+		//caso contrario devolve uma sub lista da lista ordenada desde o indice 0 ate ao indice numberOfStations-1
 		else {
-			return view.subList(0, numberOfStations);
+			return view.subList(0, numberOfStations-1);
 		}		
 	}
 
