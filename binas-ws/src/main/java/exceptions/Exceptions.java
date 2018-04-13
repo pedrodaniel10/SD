@@ -64,6 +64,7 @@ public final class Exceptions {
 		throw new BadInit_Exception(message, faultInfo);
 	}
 	
+	/** Helper to throw a new InvalidStation exception. */
 	public static void throwInvalidStation(final String message) throws
 		InvalidStation_Exception {
 		InvalidStation invalidStation = new InvalidStation();
@@ -71,6 +72,7 @@ public final class Exceptions {
 		throw new InvalidStation_Exception(message, invalidStation);
 	}
 	
+	/** Helper to throw a new FullStation exception. */
 	public static void throwFullStation(final String message) throws
 		FullStation_Exception {
 		FullStation fullStation = new FullStation();
@@ -78,6 +80,7 @@ public final class Exceptions {
 		throw new FullStation_Exception(message, fullStation);
 	}
 	
+	/** Helper to throw a new NoBinaRented exception. */
 	public static void throwNoBinaRented(final String message) throws
 		NoBinaRented_Exception {
 		NoBinaRented noBinaRented = new NoBinaRented();
@@ -85,6 +88,7 @@ public final class Exceptions {
 		throw new NoBinaRented_Exception(message, noBinaRented);
 	}
 	
+	/** Helper to throw a new AlreadyHasBina exception. */
 	public static void throwAlreadyHasBina(final String message) throws
 		AlreadyHasBina_Exception {
 		AlreadyHasBina alreadyHasBina = new AlreadyHasBina();
@@ -92,6 +96,7 @@ public final class Exceptions {
 		throw new AlreadyHasBina_Exception(message, alreadyHasBina);
 	}
 	
+	/** Helper to throw a new NoBinaAvail exception. */
 	public static void throwNoBinaAvail(final String message) throws
 		NoBinaAvail_Exception {
 		NoBinaAvail noBinaAvail = new NoBinaAvail();

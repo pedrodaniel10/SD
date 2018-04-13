@@ -1,6 +1,6 @@
 package org.binas.ws.it;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -18,6 +18,8 @@ public class ListStationsIT extends BaseIT {
 	private static CoordinatesView coordinates = new CoordinatesView();
 	private static final int USER_X = 10;
 	private static final int USER_Y = 10;
+	
+	private static final int NUM_ACTIVE_STATIONS = 3;
 	
 	// Station 1
 	private static final String STATION_1 = "A47_Station1";
@@ -55,27 +57,11 @@ public class ListStationsIT extends BaseIT {
 	}
 	
 	@Test
-	public void sucess1(){
-		//caso em que o numberOfStations e igual ao numero total de estacoes
-		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(3, coordinates);
+	public void numberOfStationsEqualsActive(){
+		// numberOfStations = number of active stations (3)
+		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(NUM_ACTIVE_STATIONS, coordinates);
 		
-		assertEquals(3, listStations.size());
-		
-		String first = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[0]));
-		String second = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[1]));
-		String third = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[2]));
-		
-		assertEquals(first, listStations.get(0).getId());
-		assertEquals(second, listStations.get(1).getId());
-		assertEquals(third, listStations.get(2).getId());
-	}
-	
-	@Test
-	public void sucess2(){
-		//caso em que o numberOfStations e maior que o numero total de estacoes
-		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(5, coordinates);
-		
-		assertEquals(3, listStations.size());
+		assertEquals(NUM_ACTIVE_STATIONS, listStations.size());
 		
 		String first = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[0]));
 		String second = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[1]));
@@ -87,8 +73,24 @@ public class ListStationsIT extends BaseIT {
 	}
 	
 	@Test
-	public void sucess3(){
-		//caso em que o numberOfStations e menor que o nuemro total de estacoes
+	public void numberOfStationsGreaterThanActive(){
+		// numberOfStations > number of active stations (3)
+		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(2*NUM_ACTIVE_STATIONS, coordinates);
+		
+		assertEquals(NUM_ACTIVE_STATIONS, listStations.size());
+		
+		String first = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[0]));
+		String second = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[1]));
+		String third = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[2]));
+		
+		assertEquals(first, listStations.get(0).getId());
+		assertEquals(second, listStations.get(1).getId());
+		assertEquals(third, listStations.get(2).getId());
+	}
+	
+	@Test
+	public void numberOfStationsLesserThanActive(){
+		// numberOfStations < number of active stations (3)
 		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(1, coordinates);
 		
 		assertEquals(1, listStations.size());
@@ -96,6 +98,89 @@ public class ListStationsIT extends BaseIT {
 		String first = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[0]));
 		
 		assertEquals(first, listStations.get(0).getId());
+	}
+	
+	@Test
+	public void numberOfStationsEqualsActivePlusOne(){
+		// numberOfStations = number of active stations (3) + 1
+		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(NUM_ACTIVE_STATIONS + 1, coordinates);
+		
+		assertEquals(NUM_ACTIVE_STATIONS, listStations.size());
+		
+		String first = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[0]));
+		String second = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[1]));
+		String third = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[2]));
+		
+		assertEquals(first, listStations.get(0).getId());
+		assertEquals(second, listStations.get(1).getId());
+		assertEquals(third, listStations.get(2).getId());
+	}
+	
+	@Test
+	public void numberOfStationsEqualsActiveMinusOne(){
+		// numberOfStations = number of active stations (3) - 1
+		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(NUM_ACTIVE_STATIONS - 1, coordinates);
+		
+		assertEquals(NUM_ACTIVE_STATIONS - 1, listStations.size());
+		
+		String first = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[0]));
+		String second = String.format("A47_Station%d", orderedMap.get(sorted.toArray()[1]));
+		
+		assertEquals(first, listStations.get(0).getId());
+		assertEquals(second, listStations.get(1).getId());
+	}
+	
+	@Test
+	public void numberOfStationsEqualsZero(){
+		// numberOfStations = 0
+		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(0, coordinates);
+		
+		assertNotNull(listStations);
+		assertEquals(0, listStations.size());
+	}
+	
+	@Test
+	public void numberOfStationsEqualsMinusOne(){
+		// numberOfStations = - 1
+		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(-1, coordinates);
+		
+		assertNotNull(listStations);
+		assertEquals(0, listStations.size());
+	}
+	
+	@Test
+	public void numberOfStationsNegative(){
+		// numberOfStations = - 5
+		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(-5, coordinates);
+		
+		assertNotNull(listStations);
+		assertEquals(0, listStations.size());
+	}
+	
+	@Test
+	public void nullCoordinates(){
+		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(NUM_ACTIVE_STATIONS, null);
+		
+		assertNotNull(listStations);
+		assertEquals(0, listStations.size());
+	}
+	
+	@Test
+	public void nullXCoordinates(){
+		coordinates.setX(null);
+		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(NUM_ACTIVE_STATIONS, null);
+		
+		assertNotNull(listStations);
+		assertEquals(0, listStations.size());
+	}
+	
+	@Test
+	public void nullYCoordinates(){
+		coordinates.setY(null);
+		ArrayList<StationView> listStations = (ArrayList<StationView>) client.listStations(NUM_ACTIVE_STATIONS, null);
+		
+		assertNotNull(listStations);
+		assertEquals(0, listStations.size());
 	}
 	
 	@After

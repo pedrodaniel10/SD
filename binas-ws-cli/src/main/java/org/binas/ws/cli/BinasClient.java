@@ -1,6 +1,5 @@
 package org.binas.ws.cli;
 
-import java.awt.List;
 import java.util.Map;
 
 import javax.xml.ws.BindingProvider;

@@ -26,18 +26,31 @@ targetNamespace="http://ws.binas.org/",
 serviceName = "BinasService"
 )
 public class BinasPortImpl implements BinasPortType {
-
+	/** Manager for binas*/
 	private BinasManager binasManager;
 
+	/**
+	 * Constructor BinasPortImpl
+	 * @param binasManager
+	 */
 	public BinasPortImpl(BinasManager binasManager) {
 		this.binasManager = binasManager;
 	}
 
 	@Override
 	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
+		// check Arguments
+		if(numberOfStations < 0){
+			return new ArrayList<StationView>();
+		}
+		if(coordinates == null || coordinates.getX() == null || coordinates.getY() == null){
+			return new ArrayList<StationView>();
+		}
 		
-		class StationComparator implements Comparator<StationView> {
-			//comparador que compara duas stations consante a distancia até as coordenadas (x, y) dadas
+		/**
+		 * Comparator for two StationView, using to sort.
+		 */
+		class StationComparator implements Comparator<StationView> { 
 			int x = coordinates.getX();
 			int y = coordinates.getY();
 			
@@ -56,18 +69,14 @@ public class BinasPortImpl implements BinasPortType {
 		List<StationClient> listStations = this.getAllStations();
 		ArrayList<StationView> view = new ArrayList<StationView>();
 		for (StationClient stationClient: listStations) {
-			//adiciona a lista view a conversao de StationView Station para StationView Binas
 			view.add(stationViewSetter(stationClient.getInfo()));
 		}	
 
-		//ordena a lista view consoante o comparador StationComparator
 		view.sort(new StationComparator());
 		
-		//se o tamanho da lista de estações for menor do que a que eles pretendem então devolve a lista ordenada
 		if ( view.size() <= numberOfStations  ) {
 			return view;
 		}
-		//caso contrario devolve uma sub lista da lista ordenada desde o indice 0 ate ao indice numberOfStations-1
 		else {
 			return view.subList(0, numberOfStations);
 		}		
@@ -94,7 +103,7 @@ public class BinasPortImpl implements BinasPortType {
 			Exceptions.throwInvalidStation("An error has occured while connecting to the Station:" + stationId);
 		}
 		
-		return null;
+		return null; //never happens
 	}
 
 
@@ -138,9 +147,11 @@ public class BinasPortImpl implements BinasPortType {
 				}
 				
 				else {
-					stationC.getBina();
-					user.setHasBina(true);
-					user.substractCredit(1);
+					synchronized(user){
+						stationC.getBina();
+						user.setHasBina(true);
+						user.substractCredit(1);
+					}
 				}		
 			}
 		}
@@ -168,11 +179,13 @@ public class BinasPortImpl implements BinasPortType {
 			Exceptions.throwNoBinaRented("Given user doesn't have any bina rented.");
 		
 		try {
-			user.setHasBina(false);
 			StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
 
-			int bonus = stationC.returnBina();
-			user.addCredit(bonus);
+			synchronized(user){
+				int bonus = stationC.returnBina();
+				user.setHasBina(false);
+				user.addCredit(bonus);
+			}
 			
 		}
 		catch (StationClientException e) {
@@ -216,6 +229,17 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize)
 			throws BadInit_Exception {
+		
+		if(stationId == null || stationId.trim().equals("")){
+			Exceptions.throwBadInit("StationId can not be null or empty.");
+		}
+		if(capacity < 0){
+			Exceptions.throwBadInit("Capacity can not be negative.");
+		}
+		if(returnPrize < 0){
+			Exceptions.throwBadInit("Prize can not be negative.");
+		}
+		
 		try {
 			StationClient client = new StationClient(binasManager.getUDDIUrl(), stationId);
 			
@@ -231,8 +255,10 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public void testInit(int userInitialPoints) throws BadInit_Exception {
+		if(userInitialPoints < 0){
+			Exceptions.throwBadInit("Initial points can not be negative.");
+		}
 		User.init(userInitialPoints);
-		
 	}
 	
 //	<-- Auxiliary functions -->

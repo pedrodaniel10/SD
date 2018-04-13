@@ -11,23 +11,19 @@ import org.binas.ws.InvalidStation_Exception;
 import org.binas.ws.NoBinaAvail_Exception;
 import org.binas.ws.NoBinaRented_Exception;
 import org.binas.ws.NoCredit_Exception;
+import org.binas.ws.StationView;
 import org.binas.ws.UserNotExists_Exception;
-import org.binas.ws.UserView;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import junit.framework.Assert;
-
 public class ReturnBinaIT extends BaseIT {
 	
-	String stationID1 = "A47_Station1";
-	String stationID2 = "A47_Station2";
-	String stationIDInvalid = "CXX";
-	String stationID3 = "A47_Station3";
-	
-	String email = "tecnico@sd";
-	String emailNotActive = "sd@tecnico";
+	private static final String stationID1 = "A47_Station1";
+	private static final String stationID2 = "A47_Station2";
+	private static final String stationIDInvalid = "CXX";
+	private static final String email = "tecnico@sd";
+	private static final String emailNotActive = "sd@tecnico";
 	
 	//(º)	consegue retornar uma bicicleta numa estacao com sucesso
 	//(º)	consegue fazer 2 returns com sucesso
@@ -47,146 +43,236 @@ public class ReturnBinaIT extends BaseIT {
 	
 	
 	@Before
-	public void setUp() throws EmailExists_Exception, InvalidEmail_Exception {
+	public void setUp() throws EmailExists_Exception, InvalidEmail_Exception, BadInit_Exception {
+		client.testInit(10);
 		client.activateUser(email);
 	}
 	
 	@Test
-	public void sucess() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
-		client.testInitStation(this.stationID1, 5, 5, 20, 10);
+	public void sucess() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, 
+		NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, 
+		NoBinaRented_Exception{
+		client.testInitStation(stationID1, 5, 5, 20, 10);
 		client.rentBina(stationID1, email);
 		client.returnBina(stationID1, email);
+		
+		StationView station = client.getInfoStation(stationID1);
 
-		assertEquals(20, client.getInfoStation(stationID1).getAvailableBinas());
+		assertEquals(0, station.getFreeDocks());
+		assertEquals(1, station.getTotalReturns());
+		assertEquals(20, station.getAvailableBinas());
 		assertEquals(19, client.getCredit(email));
 	}
 	
 	@Test
-	public void sucess2() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
-		client.testInitStation(this.stationID1, 5, 5, 20, 10);
+	public void twoReturnSameStationSucess() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, 
+		NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, 
+		NoBinaRented_Exception{
+		client.testInitStation(stationID1, 5, 5, 20, 10);
 		client.rentBina(stationID1, email);
 		client.returnBina(stationID1, email);
 		
 		client.rentBina(stationID1, email);
 		client.returnBina(stationID1, email);
 		
-		assertEquals(20, client.getInfoStation(stationID1).getAvailableBinas());
+		StationView station = client.getInfoStation(stationID1);
+		
+		assertEquals(0, station.getFreeDocks());
+		assertEquals(2, station.getTotalReturns());
+		assertEquals(20, station.getAvailableBinas());
 		assertEquals(28, client.getCredit(email));
 	}
 	
 	@Test
-	public void sucess3() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
-		client.testInitStation(this.stationID1, 5, 5, 1, 10);
-		client.rentBina(stationID1, email);
-		client.returnBina(stationID1, email);
+	public void twoReturnsDiffStations() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, 
+		NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, 
+		NoBinaRented_Exception, EmailExists_Exception, InvalidEmail_Exception{
+		client.testInitStation(stationID1, 22, 7, 6, 2);
+		client.testInitStation(stationID2, 80, 20, 12, 1);
+		client.activateUser("binas@test");
 		
-		assertEquals(1, client.getInfoStation(stationID1).getAvailableBinas());
-		assertEquals(19, client.getCredit(email));
+		client.rentBina(stationID1, email);
+		client.rentBina(stationID2, "binas@test");
+		client.returnBina(stationID2, email);
+		client.returnBina(stationID1, "binas@test");
+		
+		StationView station1 = client.getInfoStation(stationID1);
+		
+		assertEquals(0, station1.getFreeDocks());
+		assertEquals(1, station1.getTotalReturns());
+		assertEquals(6, station1.getAvailableBinas());
+		
+		StationView station2 = client.getInfoStation(stationID2);
+		
+		assertEquals(0, station2.getFreeDocks());
+		assertEquals(1, station2.getTotalReturns());
+		assertEquals(12, station2.getAvailableBinas());
+		
+		assertEquals(10, client.getCredit(email));
+		assertEquals(11, client.getCredit("binas@test"));
 	}
 	
-	@Test (expected = FullStation_Exception.class)
-	public void NoSlotsAvailable() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
+	@Test (expected = AlreadyHasBina_Exception.class)
+	public void NoSlotsAvailable() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, 
+		NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, NoBinaRented_Exception{
 		client.testInitStation(stationID1, 5, 5, 20, 10);
 		client.testInitStation(stationID2, 5, 5, 20, 10);
 		
 		client.rentBina(stationID1, email);
-		client.returnBina(stationID2, email);	
+		try {
+			client.returnBina(stationID2, email);
+			fail();
+		} 
+		catch (FullStation_Exception e) {
+			StationView station1 = client.getInfoStation(stationID1);
+			
+			assertEquals(1, station1.getFreeDocks());
+			assertEquals(0, station1.getTotalReturns());
+			assertEquals(19, station1.getAvailableBinas());
+			
+			StationView station2 = client.getInfoStation(stationID2);
+			
+			assertEquals(0, station2.getFreeDocks());
+			assertEquals(0, station2.getTotalReturns());
+			assertEquals(20, station2.getAvailableBinas());
+			
+			assertEquals(9, client.getCredit(email));
+			
+			client.rentBina(stationID1, email);
+		}	
 		
-		assertEquals(9, client.getCredit(email));
 	}
 	
 	@Test (expected = InvalidStation_Exception.class)
-	public void InvalidStationID() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
+	public void InvalidStationID() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, 
+		NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, 
+		NoBinaRented_Exception{
 		client.testInitStation(stationID1, 5, 5, 20, 10);
 		
 		client.rentBina(stationID1, email);
 		client.returnBina(stationIDInvalid, email);	
-		
-		assertEquals(9, client.getCredit(email));
 	}
 	
 	@Test (expected = InvalidStation_Exception.class)
-	public void InvalidStationNull() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
+	public void InvalidStationNull() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, 
+		NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, 
+		NoBinaRented_Exception{
 		client.testInitStation(stationID1, 5, 5, 20, 10);
 		
 		client.rentBina(stationID1, email);
 		client.returnBina(null, email);	
-		
-		assertEquals(9, client.getCredit(email));
 	}
 	
 	@Test (expected = InvalidStation_Exception.class)
-	public void InvalidStationEmptyID() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
+	public void InvalidStationEmptyID() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, 
+		NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
 		client.testInitStation(stationID1, 5, 5, 20, 10);
 		
 		client.rentBina(stationID1, email);
 		client.returnBina("", email);	
+	}
+	
+	@Test (expected = InvalidStation_Exception.class)
+	public void InvalidStationBlankID() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, 
+		NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
+		client.testInitStation(stationID1, 5, 5, 20, 10);
 		
-		assertEquals(9, client.getCredit(email));
+		client.rentBina(stationID1, email);
+		client.returnBina("  ", email);	
 	}
 	
 	@Test (expected = UserNotExists_Exception.class)
-	//Nao preciso do rent bina porque chega primeiro ao caso que verifica o user 
-	public void UserNotRegisteredD() throws BadInit_Exception, InvalidStation_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
-		client.testInitStation(stationID1, 5, 5, 20, 10);
-		
-		client.returnBina(stationID1, emailNotActive);	
-		
-		assertEquals(10, client.getCredit(email));
-		
+	public void UserNotRegisteredD() throws BadInit_Exception, InvalidStation_Exception, NoCredit_Exception, 
+		UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{		
+		client.returnBina(stationID1, emailNotActive);			
 	}
 	
 	@Test (expected = UserNotExists_Exception.class)
-	//Nao preciso do rent bina porque chega primeiro ao caso que verifica o user 
-	public void UserNull() throws BadInit_Exception, InvalidStation_Exception, NoBinaAvail_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
-		client.testInitStation(stationID1, 5, 5, 20, 10);
-	
+	public void UserNull() throws BadInit_Exception, InvalidStation_Exception, NoBinaAvail_Exception, 
+		UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
 		client.returnBina(stationID1, null);	
-		
-		assertEquals(10, client.getCredit(email));
-		assertEquals(20, client.getInfoStation(stationID1).getAvailableBinas());
 	}
 	
 	@Test (expected = UserNotExists_Exception.class)
-	//Nao preciso do rent bina porque chega primeiro ao caso que verifica o user 
-	public void UserEmpty() throws BadInit_Exception, InvalidStation_Exception, NoBinaAvail_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
-		client.testInitStation(stationID1, 5, 5, 20, 10);
-	
+	public void UserEmpty() throws BadInit_Exception, InvalidStation_Exception, NoBinaAvail_Exception, 
+		UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
 		client.returnBina(stationID1, "");	
+	}
+	
+	@Test (expected = UserNotExists_Exception.class)
+	public void UserBlank() throws BadInit_Exception, InvalidStation_Exception, NoBinaAvail_Exception, 
+		UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
+		client.returnBina(stationID1, "  ");	
+	}
+	
+	@Test
+	public void NoneRented() throws BadInit_Exception, InvalidStation_Exception, NoBinaAvail_Exception, 
+		NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, AlreadyHasBina_Exception{
+		client.testInitStation(stationID1, 5, 5, 20, 10);
 		
-		assertEquals(10, client.getCredit(email));
-		assertEquals(20, client.getInfoStation(stationID1).getAvailableBinas());
+		try {
+			client.returnBina(stationID1, email);
+			fail();
+		} 
+		catch (NoBinaRented_Exception e) {
+			StationView station = client.getInfoStation(stationID1);
+			
+			assertEquals(0, station.getFreeDocks());
+			assertEquals(0, station.getTotalReturns());
+			assertEquals(20, station.getAvailableBinas());
+			assertEquals(10, client.getCredit(email));
+		}
 	}
 	
-	@Test	(expected = NoBinaRented_Exception.class)
-	public void NoneRented() throws BadInit_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception, AlreadyHasBina_Exception{
-		client.testInitStation(this.stationID1, 5, 5, 20, 10);
-		client.returnBina(stationID1, email);
-
-		assertEquals(20, client.getInfoStation(stationID1).getAvailableBinas());
-		assertEquals(10, client.getCredit(email));
+	@Test
+	public void LreadyReturnedSameStation() throws BadInit_Exception, InvalidStation_Exception, NoBinaAvail_Exception, 
+		NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, AlreadyHasBina_Exception{
+		client.testInitStation(stationID1, 5, 5, 20, 10);
+		
+		try{
+			client.rentBina(stationID1, email);
+			client.returnBina(stationID1, email);
+			client.returnBina(stationID1, email);
+			fail();
+		}
+		catch (NoBinaRented_Exception e) {
+			StationView station = client.getInfoStation(stationID1);
+			
+			assertEquals(0, station.getFreeDocks());
+			assertEquals(1, station.getTotalReturns());
+			assertEquals(20, station.getAvailableBinas());
+			assertEquals(19, client.getCredit(email));
+		}
 	}
 	
-	@Test	(expected = NoBinaRented_Exception.class)
-	public void LreadyReturnedSameStation() throws BadInit_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception, AlreadyHasBina_Exception{
-		client.testInitStation(this.stationID1, 5, 5, 20, 10);
-		client.rentBina(stationID1, email);
-		client.returnBina(stationID1, email);
-		client.returnBina(stationID1, email);
-
-		assertEquals(20, client.getInfoStation(stationID1).getAvailableBinas());
-		assertEquals(19, client.getCredit(email));
-	}
-	
-	@Test	(expected = NoBinaRented_Exception.class)
-	public void LreadyReturnedDifferentStation() throws BadInit_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception, AlreadyHasBina_Exception{
-		client.testInitStation(this.stationID1, 5, 5, 20, 10);
-		client.rentBina(stationID1, email);
-		client.returnBina(stationID1, email);
-		client.returnBina(stationID2, email);
-
-		assertEquals(20, client.getInfoStation(stationID1).getAvailableBinas());
-		assertEquals(19, client.getCredit(email));
+	@Test
+	public void LreadyReturnedDifferentStation() throws BadInit_Exception, InvalidStation_Exception, 
+		NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, 
+		AlreadyHasBina_Exception{
+		client.testInitStation(stationID1, 5, 5, 20, 10);
+		client.testInitStation(stationID2, 5, 5, 20, 10);
+		
+		try{
+			client.rentBina(stationID1, email);
+			client.returnBina(stationID1, email);
+			client.returnBina(stationID2, email);
+			fail();
+		}
+		catch (NoBinaRented_Exception e) {
+			StationView station = client.getInfoStation(stationID1);
+			
+			assertEquals(0, station.getFreeDocks());
+			assertEquals(1, station.getTotalReturns());
+			assertEquals(20, station.getAvailableBinas());
+			
+			StationView station2 = client.getInfoStation(stationID2);
+			
+			assertEquals(0, station2.getFreeDocks());
+			assertEquals(0, station2.getTotalReturns());
+			assertEquals(20, station2.getAvailableBinas());
+			
+			assertEquals(19, client.getCredit(email));
+		}
 	}
 	
 	@After

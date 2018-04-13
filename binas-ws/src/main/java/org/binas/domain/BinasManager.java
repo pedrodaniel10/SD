@@ -4,11 +4,8 @@ import java.io.IOException;
 
 import javax.xml.ws.Endpoint;
 
-
-import org.binas.ws.BadInit_Exception;
 import org.binas.ws.BinasPortImpl;
 
-import exceptions.Exceptions;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
@@ -19,7 +16,7 @@ public class BinasManager {
 	/** Web Service name */
 	private static String wsName = null;
 	
-	/** Binas url*/
+	/** Binas URL*/
 	private static String wsURL;
 	
 	/** Web Service end point */
@@ -39,7 +36,7 @@ public class BinasManager {
 	/** Get UDDI Naming instance for contacting UDDI server 
 	 * @throws UDDINamingException */
 	public synchronized UDDINaming getUddiNaming() throws UDDINamingException {
-		this.uddiNaming = new UDDINaming(this.uddiURL);
+		this.uddiNaming = new UDDINaming(BinasManager.uddiURL);
 
 		return uddiNaming;
 	}
@@ -77,12 +74,13 @@ public class BinasManager {
 		this.setWsURL(wsURL);
 	}
 	
+	// Getters and Setters --------------------------------------------------
 	public String getUDDIUrl() {
 		return uddiURL;
 	}
 
 	private void setUDDIUrl(String uDDIUrl) {
-		this.uddiURL = uDDIUrl;
+		BinasManager.uddiURL = uDDIUrl;
 	}
 
 	public String getWsName() {
@@ -90,7 +88,7 @@ public class BinasManager {
 	}
 
 	private void setWsName(String wsName) {
-		this.wsName = wsName;
+		BinasManager.wsName = wsName;
 	}
 
 	public String getWsURL() {
@@ -98,7 +96,7 @@ public class BinasManager {
 	}
 
 	private void setWsURL(String wsURL) {
-		this.wsURL = wsURL;
+		BinasManager.wsURL = wsURL;
 	}
 	
 	public void start() throws Exception {
@@ -154,9 +152,9 @@ public class BinasManager {
 	
 	private synchronized void publishToUDDI() throws Exception {
 		// publish to UDDI
-		System.out.printf("Publishing '%s' to UDDI at %s%n", this.wsName, this.uddiURL);
-		this.uddiNaming = new UDDINaming(uddiURL);
-		this.uddiNaming.rebind(this.wsName, this.wsURL);
+		System.out.printf("Publishing '%s' to UDDI at %s%n", BinasManager.wsName, BinasManager.uddiURL);
+		this.uddiNaming = new UDDINaming(BinasManager.uddiURL);
+		this.uddiNaming.rebind(BinasManager.wsName, BinasManager.wsURL);
 		
 	}
 	
@@ -164,11 +162,11 @@ public class BinasManager {
 		if (this.uddiNaming != null) {
 			// delete from UDDI
 			try {
-				this.uddiNaming.unbind(this.wsName);
+				this.uddiNaming.unbind(BinasManager.wsName);
 			} catch (UDDINamingException e) {
 				System.out.printf("Caught exception when unbinding UDDINaming: %s%n", e);
 			}
-			System.out.printf("Deleted '%s' from UDDI%n", this.wsName);
+			System.out.printf("Deleted '%s' from UDDI%n", BinasManager.wsName);
 		}
 		
 	}

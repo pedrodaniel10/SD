@@ -24,8 +24,6 @@ public class BinasApp {
 			return;
 		}
 	
-		
-
 		try {
 			binasM.start();
 			binasM.awaitConnections();

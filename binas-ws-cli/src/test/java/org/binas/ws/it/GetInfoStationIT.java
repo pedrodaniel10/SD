@@ -65,7 +65,6 @@ public class GetInfoStationIT extends BaseIT {
 		client.getInfoStation("A47_Station4");
 	}
 	
-	
 	@After
 	public void tearDown(){
 		client.testClear();

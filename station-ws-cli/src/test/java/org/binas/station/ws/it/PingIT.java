@@ -9,24 +9,24 @@ import org.junit.Test;
  */
 public class PingIT extends BaseIT {
 
-	// tests
-	// assertEquals(expected, actual);
-
-	// public String ping(String x)
-
+	@Test
+	public void sucess() {
+		assertNotNull(client.testPing("test"));
+	}
+	
 	@Test
 	public void pingNullTest() {
 		assertNotNull(client.testPing(null));
 	}
 	
 	@Test
-	public void pingBlankTest() {
+	public void pingEmptyTest() {
 		assertNotNull(client.testPing(""));
 	}
 	
 	@Test
-	public void pingEmptyTest() {
-		assertNotNull(client.testPing("test"));
+	public void pingBlankTest() {
+		assertNotNull(client.testPing("   "));
 	}
 
 }

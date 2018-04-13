@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.binas.ws.BadInit_Exception;
-import org.binas.ws.EmailExists;
 import org.binas.ws.EmailExists_Exception;
 import org.binas.ws.InvalidEmail_Exception;
 import org.binas.ws.NoCredit_Exception;
@@ -47,7 +46,7 @@ public class User {
 		if(email == null || email.trim().equals("")){
 			Exceptions.throwInvalidEmail("The email can not be null or empty.");
 		}
-		else if(!email.matches(regex)){
+		if(!email.matches(regex)){
 			Exceptions.throwInvalidEmail("The email " + email + " format is invalid.");
 		}
 		
@@ -60,6 +59,9 @@ public class User {
 		return email;
 	}
 	
+	/**
+	 * @param userInitialPoints
+	 */
 	private synchronized static void setDefaultCredit(int userInitialPoints) {
 		DEFAULT_CREDIT = userInitialPoints;
 	}
@@ -71,10 +73,17 @@ public class User {
 		return credit;
 	}
 	
+	/**
+	 * @param amount
+	 */
 	public synchronized void addCredit(int amount){
 		this.credit += amount;
 	}
 	
+	/**
+	 * @param amount
+	 * @throws NoCredit_Exception if final balance is less than 0
+	 */
 	public synchronized void substractCredit(int amount) throws NoCredit_Exception{
 		if(this.credit - amount < 0){
 			Exceptions.throwNoCredit("No credit avaiable for the operation.");
@@ -110,7 +119,10 @@ public class User {
 	 * @throws UserNotExists_Exception 
 	 */
 	public static User getUser(String email) throws UserNotExists_Exception{
-		User user = users.get(email);
+		User user;
+		synchronized(users){
+			 user = users.get(email);
+		}
 		
 		if(user == null){
 			Exceptions.throwUserNotExists("The user with email " + email + "does not exists.");
@@ -119,6 +131,9 @@ public class User {
 	}
 	
 	
+	/**
+	 * @return UserView with the information of the user
+	 */
 	public synchronized UserView getUserView(){
 		UserView userView= new UserView();
 		
@@ -129,14 +144,21 @@ public class User {
 		return userView;
 	}
 	
-	public static void init(int userInitialPoints) throws BadInit_Exception {
+	/**
+	 * @param userInitialPoints
+	 * @throws BadInit_Exception
+	 */
+	public static synchronized void init(int userInitialPoints) throws BadInit_Exception {
  		if(userInitialPoints < 0 )
  			Exceptions.throwBadInit("Value can not be negative.");;
  
  		User.setDefaultCredit(userInitialPoints);
  	}
 
-	public static void clear(){
+	/**
+	 * Sets DEFAULT_CREDIT to 10 and clears all the saved users
+	 */
+	public static synchronized void clear(){
 		DEFAULT_CREDIT = 10;
 		users.clear();
 	}
