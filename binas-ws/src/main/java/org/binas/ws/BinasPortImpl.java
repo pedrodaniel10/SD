@@ -153,19 +153,18 @@ public class BinasPortImpl implements BinasPortType {
 		if(email == null || email.trim().equals(""))
 			Exceptions.throwUserNotExists("Invalid Station Given, can not be null or empty.");
 		
+		User user = User.getUser(email);
+		
+		if(!user.isHasBina()) 
+			Exceptions.throwNoBinaRented("Given user doesn't have any bina rented.");
+		
 		try {
-			User user = User.getUser(email);
-			
-			if(!user.isHasBina()) {
-				Exceptions.throwNoBinaRented("Given user doesn't have any bina rented.");
-			}
-			else{
-				user.setHasBina(false);
-				StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
+			user.setHasBina(false);
+			StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
 
-				int bonus = stationC.returnBina();
-				user.addCredit(bonus);
-			}
+			int bonus = stationC.returnBina();
+			user.addCredit(bonus);
+			
 		}
 		catch (StationClientException e) {
 			Exceptions.throwInvalidStation("Invalid Station Given.");
