@@ -54,7 +54,6 @@ public class ReturnBinaIT extends BaseIT {
 	@Test
 	public void sucess() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
 		client.testInitStation(this.stationID1, 5, 5, 20, 10);
-		client.testInitStation("A47_Station1", 22, 7, 1, 2);
 		client.rentBina(stationID1, email);
 		client.returnBina(stationID1, email);
 
@@ -92,16 +91,6 @@ public class ReturnBinaIT extends BaseIT {
 		
 		client.rentBina(stationID1, email);
 		client.returnBina(stationID2, email);	
-		
-		assertEquals(9, client.getCredit(email));
-	}
-	
-	@Test (expected = InvalidStation_Exception.class)
-	public void InvalidStationNotExists() throws BadInit_Exception, AlreadyHasBina_Exception, InvalidStation_Exception, NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception, FullStation_Exception, NoBinaRented_Exception{
-		client.testInitStation(stationID1, 5, 5, 20, 10);
-		
-		client.rentBina(stationID1, email);
-		client.returnBina(stationID3, email);	
 		
 		assertEquals(9, client.getCredit(email));
 	}
