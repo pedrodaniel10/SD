@@ -122,6 +122,15 @@ public class StationClient implements StationPortType {
 	public int returnBina() throws NoSlotAvail_Exception {
 		return port.returnBina();
 	}
+	//
+	@Override
+	public void getBalance() {
+	}
+	//
+	@Override
+	public void setBalance(String user, UserReplic ur) {
+	}
+	
 
 	// test control operations ------------------------------------------------
 

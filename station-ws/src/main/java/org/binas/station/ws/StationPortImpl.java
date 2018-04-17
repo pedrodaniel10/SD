@@ -68,7 +68,18 @@ public class StationPortImpl implements StationPortType {
 			this.throwNoBinaAvail(e.getMessage());
 		}
 	}
-
+	//
+	// /** Get the balance of a User. */
+	@Override
+	public void getBalance() {
+		
+	}
+	//
+	// /** Set the balance of a User. */
+	@Override
+	public void setBalance(String user, UserReplic ur) {
+		
+	}
 	// Test Control operations -----------------------------------------------
 
 	 /** Diagnostic operation to check if service is running. */
