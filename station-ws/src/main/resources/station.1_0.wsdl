@@ -84,46 +84,6 @@
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="NoSlotAvail" type="tns:NoSlotAvail" />
-            
-            <!-- Second Delivery -->
-            
-            
-            <xs:complexType name="UserReplic">
-                <xs:sequence>
-                    <xs:element name="user" type="xs:string" minOccurs="0" />
-                    <xs:element name="balance" type="xs:int" minOccurs="0" />
-                </xs:sequence>
-            </xs:complexType>
-            
-            <xs:complexType name="getBalance">
-                <xs:sequence>
-                    <xs:element name="user" type="xs:string" minOccurs="0" />
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="getBalance" type="tns:getBalance" />
-            
-            <xs:complexType name="getBalanceResponse">
-                <xs:sequence>
-                    <xs:element name="balanceResponse" type="tns:UserReplic" />
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="getBalanceResponse" type="tns:getBalanceResponse" />
-            
-            <xs:complexType name="setBalance">
-                <xs:sequence>
-                <!-- como o userReplic ja recebe um user, podemos omitir o element user (foi o que o prof disse) -->
-                    <xs:element name="user" type="xs:string" minOccurs="0" />
-                    <xs:element name="value" type="tns:UserReplic" minOccurs="0" />
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="setBalance" type="tns:setBalance" />
-            
-            <xs:complexType name="setBalanceResponse">
-                <xs:sequence>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="setBalanceResponse" type="tns:setBalanceResponse" />
-
 
 
             <!-- test control operations data types -->
@@ -207,25 +167,6 @@
     </message>
     <message name="NoBinaAvail">
         <part name="fault" element="tns:NoBinaAvail" />
-    </message>
-    
-    <!-- Second Delivery -->
-    
-    <message name="getBalance">
-        <part name="parameters" element="tns:getBalance" />
-    </message>
-    
-    <message name="getBalanceResponse">
-        <part name="parameters" element="tns:getBalanceResponse" />
-    </message>
-    
-    
-    <message name="setBalance">
-        <part name="parameters" element="tns:setBalance" />
-    </message>
-	
-	<message name="setBalanceResponse">
-        <part name="parameters" element="tns:setBalanceResponse" />
     </message>
 
     <!-- test control messages -->
