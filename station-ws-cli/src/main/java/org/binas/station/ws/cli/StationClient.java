@@ -12,6 +12,8 @@ import org.binas.station.ws.BadInit_Exception;
 import org.binas.station.ws.GetBalanceResponse;
 import org.binas.station.ws.GetBinaResponse;
 import org.binas.station.ws.GetInfoResponse;
+import org.binas.station.ws.InvalidCredit_Exception;
+import org.binas.station.ws.InvalidFormatEmail_Exception;
 import org.binas.station.ws.NoBinaAvail_Exception;
 import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.ReturnBinaResponse;
@@ -158,9 +160,22 @@ public class StationClient implements StationPortType {
 	}
 
 	@Override
-	public boolean setBalance(String userEmail, double newValue, int tag, int clientID) {
+	public Response<SetBalanceResponse> setBalanceAsync(String userEmail, int credit, int tag, int clientID) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Future<?> setBalanceAsync(String userEmail, int credit, int tag, int clientID,
+			AsyncHandler<SetBalanceResponse> asyncHandler) {
+		return port.setBalanceAsync(userEmail, credit, tag, clientID, asyncHandler);
+	}
+
+	@Override
+	public boolean setBalance(String userEmail, int credit, int tag, int clientID)
+			throws InvalidCredit_Exception, InvalidFormatEmail_Exception {
+		// TODO Auto-generated method stub
 		return false;
-		
 	}
 
 	@Override
@@ -210,17 +225,7 @@ public class StationClient implements StationPortType {
 		return port.getBalanceAsync(userEmail, asyncHandler);
 	}
 
-	@Override
-	public Response<SetBalanceResponse> setBalanceAsync(String userEmail, double newValue, int tag, int clientID) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public Future<?> setBalanceAsync(String userEmail, double newValue, int tag, int clientID,
-			AsyncHandler<SetBalanceResponse> asyncHandler) {
-		return port.setBalanceAsync(userEmail, newValue, tag, clientID, asyncHandler);
-	}
 
 	@Override
 	public Response<TestPingResponse> testPingAsync(String inputMessage) {
@@ -258,5 +263,7 @@ public class StationClient implements StationPortType {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+
 
 }
