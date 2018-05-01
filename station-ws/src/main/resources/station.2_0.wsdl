@@ -292,6 +292,10 @@
                 message="tns:getBalance" />
             <output wsam:Action="http://ws.station.binas.org/Station/getBalanceResponse"
                 message="tns:getBalanceResponse" />
+            <fault message="tns:InvalidFormatEmail" name="InvalidFormatEmail"
+                wsam:Action="http://ws.station.binas.org/Station/returnBina/Fault/InvalidFormatEmail" />
+            <fault message="tns:UserDoesNotExists" name="UserDoesNotExists"
+                wsam:Action="http://ws.station.binas.org/Station/returnBina/Fault/UserDoesNotExists" />
         </operation>
         
         <operation name="setBalance">
@@ -299,6 +303,8 @@
                 message="tns:setBalance" />
             <output wsam:Action="http://ws.station.binas.org/Station/setBalanceResponse"
                 message="tns:setBalanceResponse" />
+            <fault message="tns:InvalidCredit" name="InvalidCredit"
+                wsam:Action="http://ws.station.binas.org/Station/returnBina/Fault/InvalidCredit" />
         </operation>
         
 
