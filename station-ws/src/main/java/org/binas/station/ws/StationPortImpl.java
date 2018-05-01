@@ -98,8 +98,19 @@ public class StationPortImpl implements StationPortType {
 	}
 
 	@Override
-	public boolean setBalance(String userEmail, double newValue, int tag, int clientID) throws InvalidCredit_Exception, InvalidFormatEmail_Exception{
-		return false;	
+	public boolean setBalance(String userEmail, int credit, int tag, int clientID) throws InvalidCredit_Exception, InvalidFormatEmail_Exception{
+			UsersManager userManager = UsersManager.getInstance();
+			try {
+				User user = userManager.getUser(userEmail);
+				user.setClientID(clientID);
+				user.setCredit(credit);
+				user.setTag(tag);
+			}
+			catch(UserDoesNotExistsException e) {
+				userManager.addUser(userEmail);
+				
+			}
+			return true;
 	}
 
 	// Test Control operations -----------------------------------------------
