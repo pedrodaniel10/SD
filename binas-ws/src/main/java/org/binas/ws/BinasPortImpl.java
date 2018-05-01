@@ -67,7 +67,12 @@ public class BinasPortImpl implements BinasPortType {
 		int numberOfReplics = binasEndpointManager.getReplicsNumber();
 		ArrayList<StationClient> replics = new ArrayList<StationClient>();
 		for(int i = 1; i <= numberOfReplics; i++){
-			replics.add(binasManager.getStation("A47_Station" + i));
+			try {
+				replics.add(binasManager.getStation("A47_Station" + i));
+			} catch (InvalidStationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		
