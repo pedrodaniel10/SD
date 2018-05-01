@@ -14,7 +14,7 @@ import org.binas.station.domain.exception.NoSlotAvailException;
  */
 // TODO
 @WebService(endpointInterface = "org.binas.station.ws.StationPortType",
-wsdlLocation = "station.1_0.wsdl",
+wsdlLocation = "station.2_0.wsdl",
 name ="StationService",
 portName = "StationPort",
 targetNamespace="http://ws.station.binas.org/",
@@ -152,6 +152,18 @@ public class StationPortImpl implements StationPortType {
 		BadInit faultInfo = new BadInit();
 		faultInfo.message = message;
 		throw new BadInit_Exception(message, faultInfo);
+	}
+
+	@Override
+	public AccountView getBalance(String userEmail) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setBalance(String userEmail, double newValue, int tag, int clientID) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

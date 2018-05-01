@@ -4,6 +4,7 @@ import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
 
+import org.binas.station.ws.AccountView;
 import org.binas.station.ws.BadInit_Exception;
 import org.binas.station.ws.NoBinaAvail_Exception;
 import org.binas.station.ws.NoSlotAvail_Exception;
@@ -138,6 +139,18 @@ public class StationClient implements StationPortType {
 	@Override
 	public void testInit(int x, int y, int capacity, int returnPrize) throws BadInit_Exception {
 	 port.testInit(x, y, capacity, returnPrize);
+	}
+
+	@Override
+	public AccountView getBalance(String userEmail) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setBalance(String userEmail, double newValue, int tag, int clientID) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
