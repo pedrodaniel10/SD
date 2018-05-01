@@ -135,7 +135,7 @@
             <xs:complexType name="setBalance">
                 <xs:sequence>
                     <xs:element name="userEmail" type="xs:string" minOccurs="0"/>
-                    <xs:element name="newValue" type="xs:int" />
+                    <xs:element name="credit" type="xs:int" />
                     <xs:element name="tag" type="xs:int"/>
                     <xs:element name="clientID" type="xs:int"/>
                 </xs:sequence>
