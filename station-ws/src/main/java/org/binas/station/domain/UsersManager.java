@@ -53,14 +53,15 @@ public class UsersManager {
 	}
 	
 	/**
+	 * @throws InvalidFormatEmailException 
 	 * @param email
 	 * @return user
 	 * @throws UserNotExistsException
 	 * @throws  
 	 */
-	public User getUser(String email) throws UserDoesNotExistsException {
+	public User getUser(String email) throws UserDoesNotExistsException, InvalidFormatEmailException {
 		if(stringNullOrEmpty(email)){
-			throw new UserDoesNotExistsException("The email can not be null or empty.");
+			throw new InvalidFormatEmailException("The email can not be null or empty.");
 		}
 		User user = users.get(email);
 		if(user == null){

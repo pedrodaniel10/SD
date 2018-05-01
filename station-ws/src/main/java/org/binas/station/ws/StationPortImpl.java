@@ -8,6 +8,7 @@ import org.binas.station.domain.User;
 import org.binas.station.domain.UsersManager;
 import org.binas.station.domain.exception.BadInitException;
 import org.binas.station.domain.exception.ExceptionsHelper;
+import org.binas.station.domain.exception.InvalidFormatEmailException;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
 import org.binas.station.domain.exception.UserDoesNotExistsException;
@@ -74,14 +75,16 @@ public class StationPortImpl implements StationPortType {
 	}
 	
 	@Override
-	public AccountView getBalance(String userEmail) {
+	public AccountView getBalance(String userEmail) throws UserDoesNotExists_Exception, InvalidFormatEmail_Exception {
 		try {
 			return newAccountView(UsersManager.getInstance().getUser(userEmail));
 		} 
 		catch (UserDoesNotExistsException e) {
-			e.printStackTrace();
+			ExceptionsHelper.throwUserDoesNotExists(e.getMessage());
+		} 
+		catch (InvalidFormatEmailException e) {
+			ExceptionsHelper.throwInvalidFormatEmail(e.getMessage());
 		}
-		
 		return null;
 	}
 
