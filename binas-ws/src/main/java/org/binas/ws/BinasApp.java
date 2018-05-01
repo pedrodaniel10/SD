@@ -6,15 +6,17 @@ public class BinasApp {
 		String wsName;
 		String wsURL;
 		String uddiURL;
+		int replics;
 		
 		BinasEndpointManager endpoint;
 		
-		if (args.length == 3){
+		if (args.length == 4){
 			uddiURL = args[0];
 			wsName = args[1];
 			wsURL = args[2];
-			endpoint = new BinasEndpointManager(uddiURL, wsName, wsURL);
-			System.out.println("{wsName = " + wsName + ", wsURL = " + wsURL + ", uddiURL = " + uddiURL + "}");
+			replics = Integer.parseInt(args[3]);
+			endpoint = new BinasEndpointManager(uddiURL, wsName, wsURL, replics);
+			System.out.println("{wsName = " + wsName + ", wsURL = " + wsURL + ", uddiURL = " + uddiURL + ", replics = " + replics + "}");
 		}
 		else{
 			System.err.println("Argument(s) missing!");

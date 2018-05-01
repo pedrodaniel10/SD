@@ -20,6 +20,8 @@ public class BinasEndpointManager {
 	/** Binas URL*/
 	private String wsURL;
 	
+	private int replicsNumber;
+	
 	/** Web Service end point */
 	private Endpoint endpoint = null;
 	
@@ -44,6 +46,8 @@ public class BinasEndpointManager {
 	 
 	 /** output option */
 	private boolean verbose = true;
+
+	
 	
 	public boolean isVerbose() {
 		return verbose;
@@ -54,10 +58,11 @@ public class BinasEndpointManager {
 	}
 	
 	/** constructor with provided UDDI location, WS name, and WS URL */
-	public BinasEndpointManager(String uddiURL, String wsName, String wsURL) {
+	public BinasEndpointManager(String uddiURL, String wsName, String wsURL, int replicsNumber) {
 		this.uddiURL = uddiURL;
 		this.wsName = wsName;
 		this.wsURL = wsURL;
+		this.setReplicsNumber(replicsNumber);
 		BinasManager.getInstance().setUDDIUrl(uddiURL);
 	}
 	
@@ -156,5 +161,13 @@ public class BinasEndpointManager {
 			System.out.printf("Deleted '%s' from UDDI%n", this.wsName);
 		}
 		
+	}
+
+	public int getReplicsNumber() {
+		return replicsNumber;
+	}
+
+	public void setReplicsNumber(int replicsNumber) {
+		this.replicsNumber = replicsNumber;
 	}
 }

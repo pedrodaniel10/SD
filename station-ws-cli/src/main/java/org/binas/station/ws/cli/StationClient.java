@@ -143,7 +143,6 @@ public class StationClient implements StationPortType {
 
 	@Override
 	public AccountView getBalance(String userEmail) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
