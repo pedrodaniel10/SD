@@ -1,13 +1,13 @@
 package org.binas.station.domain.exception;
 
 /** Exception used to signal a problem while getting a balance. */
-public class UserDoesNotExistException extends Exception {
+public class UserDoesNotExistsException extends Exception {
 	private static final long serialVersionUID = 1L;
 
-	public UserDoesNotExistException() {
+	public UserDoesNotExistsException() {
 	}
 
-	public UserDoesNotExistException(String message) {
+	public UserDoesNotExistsException(String message) {
 		super(message);
 	}
 }

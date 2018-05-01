@@ -1,14 +1,10 @@
-package org.binas.domain;
+package org.binas.station.domain;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.binas.ws.UserView;
-
-import exceptions.BadInitException;
-import exceptions.EmailExistsException;
-import exceptions.InvalidEmailException;
-import exceptions.UserNotExistsException;
+import org.binas.station.domain.exception.InvalidFormatEmailException;
+import org.binas.station.domain.exception.UserDoesNotExistsException;
 
 public class UsersManager {
 	// Singleton -------------------------------------------------------------
@@ -40,21 +36,20 @@ public class UsersManager {
 	/**Adds a new user to the map
 	 * @param email
 	 * @return user view
+	 * @throws InvalidFormatEmailException 
 	 * @throws InvalidEmailException
 	 * @throws EmailExistsException
 	 */
-	public synchronized UserView addUser(String email) throws InvalidEmailException, EmailExistsException{
+	public synchronized boolean addUser(String email) throws InvalidFormatEmailException {
 		if(stringNullOrEmpty(email)){
-			throw new InvalidEmailException("The email can not be null or empty.");
+			throw new InvalidFormatEmailException("The email can not be null or empty.");
 		}
 		if(users.get(email) == null){
 			User user = new User(email, initialBalance.get());
 			users.put(email, user);
-			return user.getUserView();
+			return true;
 		}
-		else{
-			throw new EmailExistsException("The email " + email + " is already taken.");
-		}
+		return false;
 	}
 	
 	/**
@@ -63,31 +58,19 @@ public class UsersManager {
 	 * @throws UserNotExistsException
 	 * @throws  
 	 */
-	public User getUser(String email) throws UserNotExistsException {
+	public User getUser(String email) throws UserDoesNotExistsException {
 		if(stringNullOrEmpty(email)){
-			throw new UserNotExistsException("The email can not be null or empty.");
+			throw new UserDoesNotExistsException("The email can not be null or empty.");
 		}
 		User user = users.get(email);
 		if(user == null){
-			throw new UserNotExistsException("The user with email " + email + " doesn't exists.");
+			throw new UserDoesNotExistsException("The user with email " + email + " doesn't exists.");
 		}
 		return user;
-	}
-		
-	/**
-	 * @param newCreditBegin
-	 * @throws BadInitException
-	 */
-	public synchronized void init(int newCreditBegin) throws BadInitException{
-		if(newCreditBegin < 0){
-			throw new BadInitException("Initial points can not be negative.");
-		}
-		initialBalance.set(newCreditBegin);
 	}
 	
 	public synchronized void reset(){
 		users.clear();
-		initialBalance.set(DEFAULT_INITIAL_BALANCE);
 	}
 	
 	// Auxiliary Functions

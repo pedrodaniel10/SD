@@ -86,7 +86,28 @@
             <xs:element name="NoSlotAvail" type="tns:NoSlotAvail" />
             
 			<!-- SECOND DELIVER -->
-                 
+            
+            <xs:complexType name="InvalidFormatEmail">
+                <xs:sequence>
+                    <xs:element name="message" type="xs:string" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="InvalidFormatEmail" type="tns:InvalidFormatEmail" />
+            
+            <xs:complexType name="InvalidCredit">
+                <xs:sequence>
+                    <xs:element name="message" type="xs:string" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="InvalidCredit" type="tns:InvalidCredit" />
+            
+            <xs:complexType name="UserDoesNotExists">
+                <xs:sequence>
+                    <xs:element name="message" type="xs:string" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="UserDoesNotExists" type="tns:UserDoesNotExists" />
+            
             <xs:complexType name="AccountView">
                 <xs:sequence>
                     <xs:element name="value" type="xs:double" />
@@ -254,6 +275,16 @@
     <message name="setBalanceResponse">
         <part name="parameters" element="tns:setBalanceResponse" />
     </message>
+    
+    <message name="InvalidFormatEmail">
+        <part name="fault" element="tns:InvalidFormatEmail" />
+    </message>
+    <message name="InvalidCredit">
+        <part name="fault" element="tns:InvalidCredit" />
+    </message>
+    <message name="UserDoesNotExists">
+        <part name="fault" element="tns:UserDoesNotExists" />
+    </message>
 
 
     <!-- Port Type (Interface) -->
@@ -293,9 +324,9 @@
             <output wsam:Action="http://ws.station.binas.org/Station/getBalanceResponse"
                 message="tns:getBalanceResponse" />
             <fault message="tns:InvalidFormatEmail" name="InvalidFormatEmail"
-                wsam:Action="http://ws.station.binas.org/Station/returnBina/Fault/InvalidFormatEmail" />
+                wsam:Action="http://ws.station.binas.org/Station/getBalance/Fault/InvalidFormatEmail" />
             <fault message="tns:UserDoesNotExists" name="UserDoesNotExists"
-                wsam:Action="http://ws.station.binas.org/Station/returnBina/Fault/UserDoesNotExists" />
+                wsam:Action="http://ws.station.binas.org/Station/getBalance/Fault/UserDoesNotExists" />
         </operation>
         
         <operation name="setBalance">
@@ -304,7 +335,7 @@
             <output wsam:Action="http://ws.station.binas.org/Station/setBalanceResponse"
                 message="tns:setBalanceResponse" />
             <fault message="tns:InvalidCredit" name="InvalidCredit"
-                wsam:Action="http://ws.station.binas.org/Station/returnBina/Fault/InvalidCredit" />
+                wsam:Action="http://ws.station.binas.org/Station/setBalance/Fault/InvalidCredit" />
         </operation>
         
 
@@ -386,6 +417,12 @@
             <output>
                 <soap:body use="literal" />
             </output>
+            <fault name="InvalidFormatEmail">
+                <soap:fault name="InvalidFormatEmail" use="literal" />
+            </fault>
+            <fault name="UserDoesNotExists">
+                <soap:fault name="UserDoesNotExists" use="literal" />
+            </fault>
         </operation>
         
         <operation name="setBalance">
@@ -396,6 +433,9 @@
             <output>
                 <soap:body use="literal" />
             </output>
+            <fault name="InvalidCredit">
+                <soap:fault name="InvalidCredit" use="literal" />
+            </fault>
         </operation>
 	
 		

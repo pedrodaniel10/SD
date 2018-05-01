@@ -4,6 +4,7 @@ import javax.jws.WebService;
 
 import org.binas.station.domain.Coordinates;
 import org.binas.station.domain.Station;
+import org.binas.station.domain.UsersManager;
 import org.binas.station.domain.exception.BadInitException;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
@@ -68,6 +69,18 @@ public class StationPortImpl implements StationPortType {
 			this.throwNoBinaAvail(e.getMessage());
 		}
 	}
+	
+	@Override
+	public AccountView getBalance(String userEmail) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setBalance(String userEmail, double newValue, int tag, int clientID) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	// Test Control operations -----------------------------------------------
 
@@ -94,6 +107,7 @@ public class StationPortImpl implements StationPortType {
 	@Override
 	public void testClear() {
 		Station.getInstance().reset();
+		UsersManager.getInstance().reset();
 	}
 	
 	 /** Set station variables with specific values. */
@@ -153,17 +167,4 @@ public class StationPortImpl implements StationPortType {
 		faultInfo.message = message;
 		throw new BadInit_Exception(message, faultInfo);
 	}
-
-	@Override
-	public AccountView getBalance(String userEmail) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setBalance(String userEmail, double newValue, int tag, int clientID) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
