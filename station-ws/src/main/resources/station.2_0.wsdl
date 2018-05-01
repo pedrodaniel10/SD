@@ -94,9 +94,18 @@
             </xs:complexType>
             <xs:element name="getBalance" type="tns:getBalance" />
             
+            
+            <xs:complexType name="AccountView">
+                <xs:sequence>
+                    <xs:element name="value" type="xs:double" minOccurs="0" />
+                    <xs:element name="tag" type="xs:int" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+            
+            
             <xs:complexType name="getBalanceResponse">
                 <xs:sequence>
-                    <xs:element name="accountInfo" type="tns:accountView" />
+                    <xs:element name="accountInfo" type="tns:AccountView" minOccurs="0"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="getBalanceResponse" type="tns:getBalanceResponse" />
