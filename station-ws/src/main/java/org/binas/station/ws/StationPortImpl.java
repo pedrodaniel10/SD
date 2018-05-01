@@ -35,7 +35,7 @@ public class StationPortImpl implements StationPortType {
 
 	// Main operations -------------------------------------------------------
 
-	// /** Retrieve information about station. */
+	 /** Retrieve information about station. */
 	@Override
 	public StationView getInfo() {
 		Station station = Station.getInstance();
@@ -43,8 +43,8 @@ public class StationPortImpl implements StationPortType {
 			return this.buildStationView(Station.getInstance());
 		}
 	}
-	//
-	// /** Return a bike to the station. */
+	
+	 /** Return a bike to the station. */
 	@Override
 	public int returnBina() throws NoSlotAvail_Exception {
 		Station station = Station.getInstance();
@@ -56,8 +56,8 @@ public class StationPortImpl implements StationPortType {
 			return -1;
 		}
 	}
-	//
-	// /** Take a bike from the station. */
+	
+	 /** Take a bike from the station. */
 	@Override
 	public void getBina() throws NoBinaAvail_Exception {
 		Station station = Station.getInstance();

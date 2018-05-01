@@ -22,7 +22,7 @@ import org.binas.ws.UserNotExists;
 import org.binas.ws.UserNotExists_Exception;
 
 /**This is just a class to help throw exceptions*/
-public final class Exceptions {
+public final class ExceptionsHelper {
 
 	/** Helper to throw a new EmailExists exception. */
 	public static void throwEmailExists(final String message) throws

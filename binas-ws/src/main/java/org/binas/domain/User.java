@@ -1,55 +1,46 @@
 package org.binas.domain;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.binas.ws.BadInit_Exception;
 import org.binas.ws.EmailExists_Exception;
 import org.binas.ws.InvalidEmail_Exception;
 import org.binas.ws.NoCredit_Exception;
-import org.binas.ws.UserNotExists_Exception;
 import org.binas.ws.UserView;
 
-import exceptions.Exceptions;
+import exceptions.InvalidEmailException;
+import exceptions.NoCreditException;
 
 public class User {
-	private static Map<String, User> users = new HashMap<String, User>();
-	
-	private static int DEFAULT_CREDIT = 10;
-	
 	private final String email;
 	private int credit;
 	private boolean hasBina;
 	
 	/**
 	 * @param email
+	 * @throws InvalidEmailException 
 	 * @throws EmailExists_Exception 
 	 * @throws InvalidEmail_Exception 
 	 */
-	public User(String email) throws EmailExists_Exception, InvalidEmail_Exception {
+	public User(String email, int beginCredit) throws InvalidEmailException {
 		checkEmail(email);
 		this.email = email;
-		this.credit = DEFAULT_CREDIT;
+		this.credit = beginCredit;
 		this.hasBina = false;
-		
-		this.addUser(this);
 	}
 	
 	/**
 	 * @param email
+	 * @throws InvalidEmailException 
 	 * @throws EmailExists_Exception 
 	 * @throws InvalidEmail_Exception 
 	 */
-	private void checkEmail(String email) throws EmailExists_Exception, InvalidEmail_Exception{
+	private void checkEmail(String email) throws InvalidEmailException {
 		final String regex = "^(([a-zA-Z0-9]+)|([a-zA-Z0-9]+\\.?[a-zA-Z0-9]+)+)@(([a-zA-Z0-9]+)|([a-zA-Z0-9]+\\.?[a-zA-Z0-9]+)+)";
 		
 		if(email == null || email.trim().equals("")){
-			Exceptions.throwInvalidEmail("The email can not be null or empty.");
+			throw new InvalidEmailException("The email can not be null or empty.");
 		}
 		if(!email.matches(regex)){
-			Exceptions.throwInvalidEmail("The email " + email + " format is invalid.");
-		}
-		
+			throw new InvalidEmailException("The email " + email + " format is invalid.");
+		}	
 	}
 
 	/**
@@ -59,13 +50,6 @@ public class User {
 		return email;
 	}
 	
-	/**
-	 * @param userInitialPoints
-	 */
-	private synchronized static void setDefaultCredit(int userInitialPoints) {
-		DEFAULT_CREDIT = userInitialPoints;
-	}
-
 	/**
 	 * @return the credit
 	 */
@@ -82,11 +66,12 @@ public class User {
 	
 	/**
 	 * @param amount
+	 * @throws NoCreditException 
 	 * @throws NoCredit_Exception if final balance is less than 0
 	 */
-	public synchronized void substractCredit(int amount) throws NoCredit_Exception{
+	public synchronized void substractCredit(int amount) throws NoCreditException{
 		if(this.credit - amount < 0){
-			Exceptions.throwNoCredit("No credit avaiable for the operation.");
+			throw new NoCreditException("No credit avaiable for the operation.");
 		}
 		this.credit -= amount;
 	}
@@ -104,33 +89,7 @@ public class User {
 	public synchronized void setHasBina(boolean hasBina) {
 		this.hasBina = hasBina;
 	}
-	
-	private synchronized void addUser(User user) throws EmailExists_Exception{
-		if(users.containsKey(user.getEmail())){
-			Exceptions.throwEmailExists("The email " + user.getEmail() + " already exists.");
-			return;
-		}
-		users.put(user.getEmail(), user);
-	}
-	
-	/**
-	 * @param email
-	 * @return user or null if does not exist
-	 * @throws UserNotExists_Exception 
-	 */
-	public static User getUser(String email) throws UserNotExists_Exception{
-		User user;
-		synchronized(users){
-			 user = users.get(email);
-		}
 		
-		if(user == null){
-			Exceptions.throwUserNotExists("The user with email " + email + "does not exists.");
-		}
-		return user;
-	}
-	
-	
 	/**
 	 * @return UserView with the information of the user
 	 */
@@ -143,23 +102,5 @@ public class User {
 		
 		return userView;
 	}
-	
-	/**
-	 * @param userInitialPoints
-	 * @throws BadInit_Exception
-	 */
-	public static synchronized void init(int userInitialPoints) throws BadInit_Exception {
- 		if(userInitialPoints < 0 )
- 			Exceptions.throwBadInit("Value can not be negative.");;
- 
- 		User.setDefaultCredit(userInitialPoints);
- 	}
 
-	/**
-	 * Sets DEFAULT_CREDIT to 10 and clears all the saved users
-	 */
-	public static synchronized void clear(){
-		DEFAULT_CREDIT = 10;
-		users.clear();
-	}
 }

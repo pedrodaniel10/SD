@@ -1,22 +1,24 @@
 package org.binas.ws;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.jws.WebService;
 
 import org.binas.domain.BinasManager;
 import org.binas.domain.User;
-import org.binas.station.ws.NoSlotAvail_Exception;
 import org.binas.station.ws.cli.StationClient;
-import org.binas.station.ws.cli.StationClientException;
 
-import exceptions.Exceptions;
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
+import exceptions.AlreadyHasBinaException;
+import exceptions.BadInitException;
+import exceptions.EmailExistsException;
+import exceptions.ExceptionsHelper;
+import exceptions.FullStationException;
+import exceptions.InvalidEmailException;
+import exceptions.InvalidStationException;
+import exceptions.NoBinaAvailException;
+import exceptions.NoBinaRentedException;
+import exceptions.NoCreditException;
+import exceptions.UserNotExistsException;
 
 @WebService(endpointInterface = "org.binas.ws.BinasPortType",
 wsdlLocation = "binas.1_0.wsdl",
@@ -26,268 +28,129 @@ targetNamespace="http://ws.binas.org/",
 serviceName = "BinasService"
 )
 public class BinasPortImpl implements BinasPortType {
-	/** Manager for binas*/
-	private BinasManager binasManager;
+	/** Endpoint Manager for binas*/
+	private BinasEndpointManager binasEndpointManager;
+	
+	/** Binas Manager */
+	private BinasManager binasManager = BinasManager.getInstance();
 
 	/**
 	 * Constructor BinasPortImpl
-	 * @param binasManager
 	 */
-	public BinasPortImpl(BinasManager binasManager) {
-		this.binasManager = binasManager;
+	public BinasPortImpl(BinasEndpointManager binasEndpointManager) {
+		this.binasEndpointManager = binasEndpointManager;
 	}
 
 	@Override
 	public List<StationView> listStations(Integer numberOfStations, CoordinatesView coordinates) {
-		// check Arguments
-		if(numberOfStations < 0){
-			return new ArrayList<StationView>();
-		}
-		if(coordinates == null || coordinates.getX() == null || coordinates.getY() == null){
-			return new ArrayList<StationView>();
-		}
-		
-		/**
-		 * Comparator for two StationView, using to sort.
-		 */
-		class StationComparator implements Comparator<StationView> { 
-			int x = coordinates.getX();
-			int y = coordinates.getY();
-			
-		    @Override
-		    public int compare(StationView sv1, StationView sv2) {
-		    		int x1 = sv1.getCoordinate().getX();
-				int y1 = sv1.getCoordinate().getY();
-				int x2 = sv2.getCoordinate().getX();
-				int y2 = sv2.getCoordinate().getY();
-		    		int distance1 = (int) (Math.pow(x1-this.x, 2) + Math.pow(y1-this.y, 2));
-		    		int distance2 = (int) (Math.pow(x2-this.x, 2) + Math.pow(y2-this.y, 2));
-		        return distance1 - distance2;
-		    }
-		}
-		
-		List<StationClient> listStations = this.getAllStations();
-		ArrayList<StationView> view = new ArrayList<StationView>();
-		for (StationClient stationClient: listStations) {
-			view.add(stationViewSetter(stationClient.getInfo()));
-		}	
-
-		view.sort(new StationComparator());
-		
-		if ( view.size() <= numberOfStations  ) {
-			return view;
-		}
-		else {
-			return view.subList(0, numberOfStations);
-		}		
+		return binasManager.listStations(numberOfStations, coordinates);
 	}
 
 	@Override
 	public StationView getInfoStation(String stationId) throws InvalidStation_Exception {
-
-		if(stationId == null || stationId.trim().equals("")){
-			Exceptions.throwInvalidStation("StationId cannot be null or blank.");
-		}
-		
-		StationClient stationClient;
-		String uddiURL;
+		StationClient stationClient = null;
 		try {
-			uddiURL = this.binasManager.getUDDIUrl();
-			stationClient = new StationClient(uddiURL, stationId);
-			org.binas.station.ws.StationView stationView = stationClient.getInfo();
-			
-			return stationViewSetter(stationView);	
-			
-		} 
-		catch (StationClientException e) {
-			Exceptions.throwInvalidStation("An error has occured while connecting to the Station:" + stationId);
+			stationClient = binasManager.getStation(stationId);
+		} catch (InvalidStationException e) {
+			ExceptionsHelper.throwInvalidStation(e.getMessage());
 		}
+		org.binas.station.ws.StationView stationView = stationClient.getInfo();
 		
-		return null; //never happens
+		return stationViewSetter(stationView);	
+		
 	}
 
 
 	@Override
 	public int getCredit(String email) throws UserNotExists_Exception {
-		User user = User.getUser(email);
-		return user.getCredit();
+		try {
+			User user = binasManager.getUser(email);
+			return user.getCredit();
+		} catch (UserNotExistsException e) {
+			ExceptionsHelper.throwUserNotExists(e.getMessage());
+		}
+		return -1;
 	}
 
 	@Override
 	public UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception {
-		User user = new User(email);
-		
-		return user.getUserView();
+		try {
+			return binasManager.addUser(email);
+		} 
+		catch(InvalidEmailException e) {
+			ExceptionsHelper.throwInvalidEmail(e.getMessage());
+		}
+		catch(EmailExistsException e) {
+			ExceptionsHelper.throwEmailExists(e.getMessage());
+		}
+		return null;
 	}
 
 	@Override
 	public void rentBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception,
 			NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception {
-		if(stationId == null || stationId.trim().equals(""))
-			Exceptions.throwInvalidStation("Invalid Station Given, can not be null or empty.");
-		
-		if(email == null || email.trim().equals(""))
-			Exceptions.throwUserNotExists("Invalid Station Given, can not be null or empty.");
-		
-		User user = User.getUser(email);
-		
 		try {
-			if(user.isHasBina()) {
-				Exceptions.throwAlreadyHasBina("Given user already has a bina rented.");
-			}
-			else{
-				StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
-				org.binas.station.ws.StationView stationView = stationC.getInfo();
-				
-				if(stationView.getAvailableBinas() == 0) {
-					Exceptions.throwNoBinaAvail("There are no available binas in the station");
-				}
-				if(user.getCredit() < 1) {
-					Exceptions.throwNoCredit("The user" + user.getEmail() + "does't have enough credits");
-				}
-				
-				else {
-					synchronized(user){
-						stationC.getBina();
-						user.setHasBina(true);
-						user.substractCredit(1);
-					}
-				}		
-			}
+			binasManager.rentBina(stationId, email);
+		} catch (AlreadyHasBinaException e) {
+			ExceptionsHelper.throwAlreadyHasBina(e.getMessage());
+		} catch (InvalidStationException e) {
+			ExceptionsHelper.throwInvalidStation(e.getMessage());
+		} catch (UserNotExistsException e) {
+			ExceptionsHelper.throwUserNotExists(e.getMessage());
+		} catch (NoBinaAvailException e) {
+			ExceptionsHelper.throwNoBinaAvail(e.getMessage());
+		} catch (NoCreditException e) {
+			ExceptionsHelper.throwNoCredit(e.getMessage());
 		}
-		catch (StationClientException e) {
-			Exceptions.throwInvalidStation("Invalid Station Given.");
-		} catch (org.binas.station.ws.NoBinaAvail_Exception e) {
-			Exceptions.throwNoBinaAvail("There are no available binas in the station");
-		}
-		
-		
 	}
 
 	@Override
 	public void returnBina(String stationId, String email)
 			throws FullStation_Exception, InvalidStation_Exception, NoBinaRented_Exception, UserNotExists_Exception {
-		if(stationId == null || stationId.trim().equals(""))
-			Exceptions.throwInvalidStation("Invalid Station Given, can not be null or empty.");
-		
-		if(email == null || email.trim().equals(""))
-			Exceptions.throwUserNotExists("Invalid Station Given, can not be null or empty.");
-		
-		User user = User.getUser(email);
-		
-		if(!user.isHasBina()) 
-			Exceptions.throwNoBinaRented("Given user doesn't have any bina rented.");
-		
 		try {
-			StationClient stationC = new StationClient(this.binasManager.getUDDIUrl(), stationId);
-
-			synchronized(user){
-				int bonus = stationC.returnBina();
-				user.setHasBina(false);
-				user.addCredit(bonus);
-			}
-			
+			binasManager.returnBina(stationId, email);
+		} catch (UserNotExistsException e) {
+			ExceptionsHelper.throwUserNotExists(e.getMessage());
+		} catch (InvalidStationException e) {
+			ExceptionsHelper.throwInvalidStation(e.getMessage());
+		} catch (NoBinaRentedException e) {
+			ExceptionsHelper.throwNoBinaRented(e.getMessage());
+		} catch (FullStationException e) {
+			ExceptionsHelper.throwFullStation(e.getMessage());
 		}
-		catch (StationClientException e) {
-			Exceptions.throwInvalidStation("Invalid Station Given.");
-		} 
-		catch (NoSlotAvail_Exception e) {
-			Exceptions.throwFullStation("No Slot Available at given Station.");
-		}
-		
 	}
 
 //	Tests functions
 	@Override
 	public String testPing(String inputMessage) {
-		if(inputMessage == null || inputMessage.trim().equals("")){
-			inputMessage = "friend";
-		}
-		
-		String result = "Hello " + inputMessage + " from " + binasManager.getWsName() + "\n";
-
-		List<StationClient> listStations = this.getAllStations();
-		result += "Founded " + listStations.size() + " stations.\n";
-		
-		for(StationClient stationClient : listStations){
-			result += "[Pinging Station = " + stationClient.getWsName() + "][Answer] ";
-			result += stationClient.testPing(inputMessage) + "\n";
-		}
-			
-		return result;
+		return binasManager.ping(inputMessage, binasEndpointManager.getWsName());
 	}
 
 	@Override
 	public void testClear() {
-		User.clear();
-		List<StationClient> listStations = this.getAllStations();
-		for(StationClient stationClient : listStations){
-			stationClient.testClear();
-		}
+		binasManager.reset();
 	}
 
 	@Override
 	public void testInitStation(String stationId, int x, int y, int capacity, int returnPrize)
 			throws BadInit_Exception {
-		
-		if(stationId == null || stationId.trim().equals("")){
-			Exceptions.throwBadInit("StationId can not be null or empty.");
-		}
-		if(capacity < 0){
-			Exceptions.throwBadInit("Capacity can not be negative.");
-		}
-		if(returnPrize < 0){
-			Exceptions.throwBadInit("Prize can not be negative.");
-		}
-		
 		try {
-			StationClient client = new StationClient(binasManager.getUDDIUrl(), stationId);
-			
-			client.testInit(x, y, capacity, returnPrize);
-		} catch (StationClientException e) {
-			Exceptions.throwBadInit(e.getMessage());
-		} catch (org.binas.station.ws.BadInit_Exception e) {
-			Exceptions.throwBadInit(e.getMessage());
+			binasManager.initStation(stationId, x, y, capacity, returnPrize);
+		} catch (BadInitException e) {
+			ExceptionsHelper.throwBadInit(e.getMessage());
 		}
-		
-		
 	}
 
 	@Override
 	public void testInit(int userInitialPoints) throws BadInit_Exception {
-		if(userInitialPoints < 0){
-			Exceptions.throwBadInit("Initial points can not be negative.");
+		try {
+			binasManager.init(userInitialPoints);
+		} catch (BadInitException e) {
+			ExceptionsHelper.throwBadInit(e.getMessage());
 		}
-		User.init(userInitialPoints);
 	}
 	
 //	<-- Auxiliary functions -->
-	private List<StationClient> getAllStations() {
-		UDDINaming uddiNaming;
-		Collection<UDDIRecord> uddiList;
-		List<StationClient> listStations = new ArrayList<StationClient>();
-		
-		try {
-			uddiNaming = this.binasManager.getUddiNaming();
-			uddiList = uddiNaming.listRecords("A47_Station%");
-		} catch (UDDINamingException e) {
-			System.err.printf("Caught exception connecting to UDDI: %s%n", e);
-			return listStations;
-		}
-		
-		for(UDDIRecord record : uddiList){
-			try{
-				StationClient stationClient = new StationClient(record.getUrl());
-				stationClient.setWsName(record.getOrgName());
-				listStations.add(stationClient);
-			}
-			catch (StationClientException e) {
-				System.err.printf("Caught exception creating StationClientException: %s%n", e);
-			}
-		}
-		
-		return listStations;
-	}
 	
 	private StationView stationViewSetter(org.binas.station.ws.StationView stationView) {
 		StationView svBinas = new StationView();
