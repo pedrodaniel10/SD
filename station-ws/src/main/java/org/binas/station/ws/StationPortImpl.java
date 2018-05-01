@@ -6,6 +6,7 @@ import org.binas.station.domain.Coordinates;
 import org.binas.station.domain.Station;
 import org.binas.station.domain.UsersManager;
 import org.binas.station.domain.exception.BadInitException;
+import org.binas.station.domain.exception.ExceptionsHelper;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
 
@@ -53,7 +54,7 @@ public class StationPortImpl implements StationPortType {
 		try {
 			return station.returnBina();
 		} catch (NoSlotAvailException e) {
-			this.throwNoSlotAvail(e.getMessage());
+			ExceptionsHelper.throwNoSlotAvail(e.getMessage());
 			return -1;
 		}
 	}
@@ -66,7 +67,7 @@ public class StationPortImpl implements StationPortType {
 		try {
 			station.getBina();
 		} catch (NoBinaAvailException e) {
-			this.throwNoBinaAvail(e.getMessage());
+			ExceptionsHelper.throwNoBinaAvail(e.getMessage());
 		}
 	}
 	
@@ -116,7 +117,7 @@ public class StationPortImpl implements StationPortType {
 		try {
 			Station.getInstance().init(x, y, capacity, returnPrize);
 		} catch (BadInitException e) {
-			throwBadInit("Invalid initialization values!");
+			ExceptionsHelper.throwBadInit("Invalid initialization values!");
 		}
 	}
 
@@ -143,28 +144,4 @@ public class StationPortImpl implements StationPortType {
 		return view;
 	}
 
-	// Exception helpers -----------------------------------------------------
-
-	 /** Helper to throw a new NoBinaAvail exception. */
-	private void throwNoBinaAvail(final String message) throws
-		NoBinaAvail_Exception {
-		NoBinaAvail faultInfo = new NoBinaAvail();
-		faultInfo.message = message;
-		throw new NoBinaAvail_Exception(message, faultInfo);
-	}
-	
-	 /** Helper to throw a new NoSlotAvail exception. */
-	private void throwNoSlotAvail(final String message) throws
-		NoSlotAvail_Exception {
-		NoSlotAvail faultInfo = new NoSlotAvail();
-		faultInfo.message = message;
-		throw new NoSlotAvail_Exception(message, faultInfo);
-	}
-	
-	 /** Helper to throw a new BadInit exception. */
-	private void throwBadInit(final String message) throws BadInit_Exception {
-		BadInit faultInfo = new BadInit();
-		faultInfo.message = message;
-		throw new BadInit_Exception(message, faultInfo);
-	}
 }
