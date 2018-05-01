@@ -84,6 +84,37 @@
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="NoSlotAvail" type="tns:NoSlotAvail" />
+            
+            <!-- new functions -->
+            
+            <xs:complexType name="getBalance">
+                <xs:sequence>
+                    <xs:element name="userEmail" type="xs:string" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="getBalance" type="tns:getBalance" />
+            
+            <xs:complexType name="getBalanceResponse">
+                <xs:sequence>
+                    <xs:element name="accountInfo" type="tns:accountView" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="getBalanceResponse" type="tns:getBalanceResponse" />
+           
+            <xs:complexType name="setBalance">
+                <xs:sequence>
+                    <xs:element name="userEmail" type="xs:string" minOccurs="0"/>
+                    <xs:element name="newValue" type="xs:double" minOccurs="0" />
+                    <xs:element name="tag" type="xs:int" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="setBalance" type="tns:setBalance" />
+            
+            <xs:complexType name="setBalanceResponse">
+                <xs:sequence>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="gsetBalanceResponse" type="tns:setBalanceResponse" />
 
 
             <!-- test control operations data types -->
@@ -193,6 +224,20 @@
 
     <message name="BadInit">
         <part name="fault" element="tns:BadInit"/>
+    </message>
+    
+    <message name="getBalance">
+        <part name="parameters" element="tns:getBalance" />
+    </message>
+    <message name="getBalanceResponse">
+        <part name="parameters" element="tns:getBalanceResponse" />
+    </message>
+    
+    <message name="setBalance">
+        <part name="parameters" element="tns:setBalance" />
+    </message>
+    <message name="setBalanceResponse">
+        <part name="parameters" element="tns:setBalanceResponse" />
     </message>
 
 
