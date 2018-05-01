@@ -3,11 +3,13 @@ package org.binas.ws;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.jws.WebService;
 import javax.xml.ws.Response;
 
 import org.binas.domain.BinasManager;
+import org.binas.station.ws.AccountView;
 import org.binas.station.ws.GetBalanceResponse;
 import org.binas.station.ws.cli.StationClient;
 
@@ -167,7 +169,7 @@ public class BinasPortImpl implements BinasPortType {
 	}
 	
 	
-	private int getBalance(String email) {
+	private int getBalance(String email) throws InterruptedException, ExecutionException {
 		int numberOfReplics = binasEndpointManager.getReplicsNumber();
 		ArrayList<StationClient> replics = new ArrayList<StationClient>();
 		//search replica and try 3 times to connect(on fail)
@@ -191,11 +193,13 @@ public class BinasPortImpl implements BinasPortType {
 			responses.put(client.getWsName(), client.getBalanceAsync(email));
 		}
 		
-		ArrayList<AccountView> 
+		ArrayList<AccountView> accountViews = new ArrayList<>();
 		while(numberOfResponses != (numberOfReplics/2 + 1)) {
 			for(String stationsName : responses.keySet()) {
 				if(responses.get(stationsName).isDone()) {
-					
+					accountViews.add(responses.get(stationsName).get().getAccountInfo());
+					responses.remove(stationsName);
+					numberOfResponses++;
 				}
 			}
 		}
