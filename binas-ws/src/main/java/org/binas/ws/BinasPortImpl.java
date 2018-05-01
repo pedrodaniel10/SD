@@ -1,12 +1,14 @@
 package org.binas.ws;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.jws.WebService;
+import javax.xml.ws.Response;
 
 import org.binas.domain.BinasManager;
-import org.binas.domain.User;
+import org.binas.station.ws.GetBalanceResponse;
 import org.binas.station.ws.cli.StationClient;
 
 import exceptions.AlreadyHasBinaException;
@@ -34,7 +36,7 @@ public class BinasPortImpl implements BinasPortType {
 	
 	/** Binas Manager */
 	private BinasManager binasManager = BinasManager.getInstance();
-
+	
 	/**
 	 * Constructor BinasPortImpl
 	 */
@@ -64,14 +66,7 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public int getCredit(String email) throws UserNotExists_Exception {
-		int numberOfReplics = binasEndpointManager.getReplicsNumber();
-		ArrayList<StationClient> replics = new ArrayList<StationClient>();
-		for(int i = 1; i <= numberOfReplics; i++){
-			replics.add(binasManager.getStation("A47_Station" + i));
-		}
-		
-		
-		return 0
+		return getBalance(email);
 	}
 
 	@Override
@@ -169,6 +164,45 @@ public class BinasPortImpl implements BinasPortType {
 		svBinas.setTotalGets(stationView.getTotalGets());
 		svBinas.setTotalReturns(stationView.getTotalReturns());
 		return svBinas;	
+	}
+	
+	
+	private int getBalance(String email) {
+		int numberOfReplics = binasEndpointManager.getReplicsNumber();
+		ArrayList<StationClient> replics = new ArrayList<StationClient>();
+		//search replica and try 3 times to connect(on fail)
+		for(int i = 1; i <= numberOfReplics; i++){
+			int numberOfTries = 0;
+			while(numberOfTries != 3) {
+				try {
+					replics.add(binasManager.getStation("A47_Station" + i));
+					break;
+				} 
+				catch (InvalidStationException e) {
+					numberOfTries++;
+				}
+			}
+		}
+		
+		HashMap<String, Response<GetBalanceResponse>> responses = new HashMap<>();
+		int numberOfResponses = 0;
+		
+		for(StationClient client : replics) {
+			responses.put(client.getWsName(), client.getBalanceAsync(email));
+		}
+		
+		ArrayList<AccountView> 
+		while(numberOfResponses != (numberOfReplics/2 + 1)) {
+			for(String stationsName : responses.keySet()) {
+				if(responses.get(stationsName).isDone()) {
+					
+				}
+			}
+		}
+		
+
+		
+		return 0;
 	}
 
 }

@@ -24,6 +24,7 @@ import org.binas.station.ws.StationView;
 import org.binas.station.ws.TestClearResponse;
 import org.binas.station.ws.TestInitResponse;
 import org.binas.station.ws.TestPingResponse;
+import org.binas.station.ws.UserDoesNotExists_Exception;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
@@ -156,13 +157,21 @@ public class StationClient implements StationPortType {
 
 	@Override
 	public AccountView getBalance(String userEmail) {
+		try {
+			return port.getBalance(userEmail);
+		} catch (InvalidFormatEmail_Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UserDoesNotExists_Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return null;
 	}
 
 	@Override
 	public Response<SetBalanceResponse> setBalanceAsync(String userEmail, int credit, int tag, int clientID) {
-		// TODO Auto-generated method stub
-		return null;
+		return port.setBalanceAsync(userEmail, credit, tag, clientID);
 	}
 
 	@Override
@@ -174,50 +183,42 @@ public class StationClient implements StationPortType {
 	@Override
 	public boolean setBalance(String userEmail, int credit, int tag, int clientID)
 			throws InvalidCredit_Exception, InvalidFormatEmail_Exception {
-		// TODO Auto-generated method stub
-		return false;
+		return port.setBalance(userEmail, credit, tag, clientID);
 	}
 
 	@Override
 	public Response<GetInfoResponse> getInfoAsync() {
-		// TODO Auto-generated method stub
-		return null;
+		return port.getInfoAsync();
 	}
 
 	@Override
 	public Future<?> getInfoAsync(AsyncHandler<GetInfoResponse> asyncHandler) {
-		// TODO Auto-generated method stub
-		return null;
+		return port.getInfoAsync(asyncHandler);
 	}
 
 	@Override
 	public Response<GetBinaResponse> getBinaAsync() {
-		// TODO Auto-generated method stub
-		return null;
+		return port.getBinaAsync();
 	}
 
 	@Override
 	public Future<?> getBinaAsync(AsyncHandler<GetBinaResponse> asyncHandler) {
-		// TODO Auto-generated method stub
-		return null;
+		return port.getBinaAsync(asyncHandler);
 	}
 
 	@Override
 	public Response<ReturnBinaResponse> returnBinaAsync() {
-		// TODO Auto-generated method stub
-		return null;
+		return port.returnBinaAsync();
 	}
 
 	@Override
 	public Future<?> returnBinaAsync(AsyncHandler<ReturnBinaResponse> asyncHandler) {
-		// TODO Auto-generated method stub
-		return null;
+		return port.returnBinaAsync(asyncHandler);
 	}
 
 	@Override
 	public Response<GetBalanceResponse> getBalanceAsync(String userEmail) {
-		// TODO Auto-generated method stub
-		return null;
+		return port.getBalanceAsync(userEmail);
 	}
 
 	@Override
@@ -225,45 +226,34 @@ public class StationClient implements StationPortType {
 		return port.getBalanceAsync(userEmail, asyncHandler);
 	}
 
-
-
 	@Override
 	public Response<TestPingResponse> testPingAsync(String inputMessage) {
-		// TODO Auto-generated method stub
-		return null;
+		return port.testPingAsync(inputMessage);
 	}
 
 	@Override
 	public Future<?> testPingAsync(String inputMessage, AsyncHandler<TestPingResponse> asyncHandler) {
-		// TODO Auto-generated method stub
-		return null;
+		return port.testPingAsync(inputMessage, asyncHandler);
 	}
 
 	@Override
 	public Response<TestClearResponse> testClearAsync() {
-		// TODO Auto-generated method stub
-		return null;
+		return port.testClearAsync();
 	}
 
 	@Override
 	public Future<?> testClearAsync(AsyncHandler<TestClearResponse> asyncHandler) {
-		// TODO Auto-generated method stub
-		return null;
+		return port.testClearAsync(asyncHandler);
 	}
 
 	@Override
 	public Response<TestInitResponse> testInitAsync(int x, int y, int capacity, int returnPrize) {
-		// TODO Auto-generated method stub
-		return null;
+		return port.testInitAsync(x, y, capacity, returnPrize);
 	}
 
 	@Override
 	public Future<?> testInitAsync(int x, int y, int capacity, int returnPrize,
 			AsyncHandler<TestInitResponse> asyncHandler) {
-		// TODO Auto-generated method stub
-		return null;
+		return port.testInitAsync(x, y, capacity, returnPrize, asyncHandler);
 	}
-
-
-
 }
