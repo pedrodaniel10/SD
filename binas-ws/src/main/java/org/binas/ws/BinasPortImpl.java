@@ -1,5 +1,6 @@
 package org.binas.ws;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.jws.WebService;
@@ -63,13 +64,14 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public int getCredit(String email) throws UserNotExists_Exception {
-		try {
-			User user = binasManager.getUser(email);
-			return user.getCredit();
-		} catch (UserNotExistsException e) {
-			ExceptionsHelper.throwUserNotExists(e.getMessage());
+		int numberOfReplics = binasEndpointManager.getReplicsNumber();
+		ArrayList<StationClient> replics = new ArrayList<StationClient>();
+		for(int i = 1; i <= numberOfReplics; i++){
+			replics.add(binasManager.getStation("A47_Station" + i));
 		}
-		return -1;
+		
+		
+		return 0
 	}
 
 	@Override

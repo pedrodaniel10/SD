@@ -92,7 +92,7 @@ public class StationPortImpl implements StationPortType {
 		AccountView av = new AccountView();
 		av.setClientID(user.getClientID());
 		av.setTag(user.getTag());
-		av.setValue(user.getCredit());
+		av.setCredit(user.getCredit());
 		
 		return av;		
 	}
