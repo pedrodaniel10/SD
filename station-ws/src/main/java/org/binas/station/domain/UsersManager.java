@@ -3,6 +3,7 @@ package org.binas.station.domain;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.binas.station.domain.exception.InvalidCreditException;
 import org.binas.station.domain.exception.InvalidFormatEmailException;
 import org.binas.station.domain.exception.UserDoesNotExistsException;
 
@@ -37,16 +38,25 @@ public class UsersManager {
 	 * @param email
 	 * @return user view
 	 * @throws InvalidFormatEmailException 
+	 * @throws InvalidCreditException 
 	 * @throws InvalidEmailException
 	 * @throws EmailExistsException
 	 */
-	public synchronized boolean addUser(String email) throws InvalidFormatEmailException {
+	public synchronized boolean addUser(String email, int credit, int tag, int clientID) throws InvalidFormatEmailException, InvalidCreditException {
 		if(stringNullOrEmpty(email)){
 			throw new InvalidFormatEmailException("The email can not be null or empty.");
 		}
 		if(users.get(email) == null){
 			User user = new User(email, initialBalance.get());
 			users.put(email, user);
+			user.setClientID(clientID);
+			user.setTag(tag);
+			try {
+				user.setCredit(credit);
+			} catch (InvalidCreditException e) {
+				throw new InvalidCreditException("Credit Given is invalid.");
+			}
+
 			return true;
 		}
 		return false;

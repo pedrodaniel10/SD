@@ -71,7 +71,7 @@ public class BinasPortImpl implements BinasPortType {
 		}
 		
 		
-		return 0
+		return 0;
 	}
 
 	@Override

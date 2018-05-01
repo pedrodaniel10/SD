@@ -225,8 +225,6 @@ public class StationClient implements StationPortType {
 		return port.getBalanceAsync(userEmail, asyncHandler);
 	}
 
-
-
 	@Override
 	public Response<TestPingResponse> testPingAsync(String inputMessage) {
 		// TODO Auto-generated method stub

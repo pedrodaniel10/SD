@@ -8,6 +8,7 @@ import org.binas.station.domain.User;
 import org.binas.station.domain.UsersManager;
 import org.binas.station.domain.exception.BadInitException;
 import org.binas.station.domain.exception.ExceptionsHelper;
+import org.binas.station.domain.exception.InvalidCreditException;
 import org.binas.station.domain.exception.InvalidFormatEmailException;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
@@ -107,8 +108,19 @@ public class StationPortImpl implements StationPortType {
 				user.setTag(tag);
 			}
 			catch(UserDoesNotExistsException e) {
-				userManager.addUser(userEmail);
-				
+					try {
+						userManager.addUser(userEmail, credit, tag, clientID);
+					} catch (InvalidFormatEmailException e1) {
+						ExceptionsHelper.throwInvalidFormatEmail(e.getMessage());
+					} catch (InvalidCreditException e1) {
+						ExceptionsHelper.throwInvalidCredit(e.getMessage());
+					}
+			}
+			catch(InvalidFormatEmailException e){
+				ExceptionsHelper.throwInvalidFormatEmail(e.getMessage());
+			}
+			catch(InvalidCreditException e){
+				ExceptionsHelper.throwInvalidCredit(e.getMessage());
 			}
 			return true;
 	}
