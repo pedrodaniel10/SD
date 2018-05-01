@@ -4,10 +4,12 @@ import javax.jws.WebService;
 
 import org.binas.station.domain.Coordinates;
 import org.binas.station.domain.Station;
+import org.binas.station.domain.User;
 import org.binas.station.domain.UsersManager;
 import org.binas.station.domain.exception.BadInitException;
 import org.binas.station.domain.exception.NoBinaAvailException;
 import org.binas.station.domain.exception.NoSlotAvailException;
+import org.binas.station.domain.exception.UserDoesNotExistsException;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -72,14 +74,28 @@ public class StationPortImpl implements StationPortType {
 	
 	@Override
 	public AccountView getBalance(String userEmail) {
-		// TODO Auto-generated method stub
+		try {
+			return newAccountView(UsersManager.getInstance().getUser(userEmail));
+		} 
+		catch (UserDoesNotExistsException e) {
+			e.printStackTrace();
+		}
+		
 		return null;
 	}
 
-	@Override
-	public void setBalance(String userEmail, double newValue, int tag, int clientID) {
-		// TODO Auto-generated method stub
+	private AccountView newAccountView(User user) {		
+		AccountView av = new AccountView();
+		av.setClientID(user.getClientID());
+		av.setTag(user.getTag());
+		av.setValue(user.getCredit());
 		
+		return av;		
+	}
+
+	@Override
+	public boolean setBalance(String userEmail, double newValue, int tag, int clientID) {
+		return false;	
 	}
 
 	// Test Control operations -----------------------------------------------

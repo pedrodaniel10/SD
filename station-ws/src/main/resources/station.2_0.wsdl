@@ -144,6 +144,7 @@
             
             <xs:complexType name="setBalanceResponse">
                 <xs:sequence>
+                	<xs:element name="balanceBool" type="xs:boolean" />
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="setBalanceResponse" type="tns:setBalanceResponse" />

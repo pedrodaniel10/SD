@@ -148,8 +148,8 @@ public class StationClient implements StationPortType {
 	}
 
 	@Override
-	public void setBalance(String userEmail, double newValue, int tag, int clientID) {
-		// TODO Auto-generated method stub
+	public boolean setBalance(String userEmail, double newValue, int tag, int clientID) {
+		return false;
 		
 	}
 
