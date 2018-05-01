@@ -39,7 +39,7 @@ public final class ExceptionsHelper {
 		faultInfo.setMessage(message);
 		throw new InvalidEmail_Exception(message, faultInfo);
 	}
-	
+	 
 	/** Helper to throw a new UserNotExists exception. */
 	public static void throwUserNotExists(final String message) throws
 		UserNotExists_Exception {
