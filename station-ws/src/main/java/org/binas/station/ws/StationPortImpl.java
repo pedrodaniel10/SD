@@ -103,9 +103,11 @@ public class StationPortImpl implements StationPortType {
 			UsersManager userManager = UsersManager.getInstance();
 			try {
 				User user = userManager.getUser(userEmail);
-				user.setClientID(clientID);
-				user.setCredit(credit);
-				user.setTag(tag);
+				if ( tag > user.getTag() || (tag == user.getTag() && clientID > user.getClientID()) ) {
+					user.setClientID(clientID);
+					user.setCredit(credit);
+					user.setTag(tag);
+				}
 			}
 			catch(UserDoesNotExistsException e) {
 					try {
