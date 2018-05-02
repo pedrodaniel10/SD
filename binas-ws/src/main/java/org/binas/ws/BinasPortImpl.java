@@ -13,12 +13,8 @@ import javax.xml.ws.WebServiceException;
 import org.binas.domain.BinasManager;
 import org.binas.station.ws.AccountView;
 import org.binas.station.ws.GetBalanceResponse;
-<<<<<<< HEAD
 import org.binas.station.ws.InvalidFormatEmail_Exception;
 import org.binas.station.ws.UserDoesNotExists_Exception;
-=======
-import org.binas.station.ws.SetBalanceResponse;
->>>>>>> origin/master
 import org.binas.station.ws.cli.StationClient;
 
 import exceptions.AlreadyHasBinaException;
@@ -75,8 +71,9 @@ public class BinasPortImpl implements BinasPortType {
 
 
 	@Override
-	public int getCredit(String email) throws UserNotExists_Exception {
+	public int getCredit(String email) throws UserNotExists_Exception {		
 		try {
+			checkEmail(email);
 			return getBalance(email);
 		} catch (InvalidEmailException | UserNotExistsException e) {
 			ExceptionsHelper.throwUserNotExists(e.getMessage());
@@ -345,4 +342,16 @@ public class BinasPortImpl implements BinasPortType {
 		}
 		return latestVersion.getCredit();
 	}
+	
+	private void checkEmail(String email) throws InvalidEmailException {
+		final String regex = "^(([a-zA-Z0-9]+)|([a-zA-Z0-9]+\\.?[a-zA-Z0-9]+)+)@(([a-zA-Z0-9]+)|([a-zA-Z0-9]+\\.?[a-zA-Z0-9]+)+)";
+		
+		if(email == null || email.trim().equals("")){
+			throw new InvalidEmailException("The email can not be null or empty.");
+		}
+		if(!email.matches(regex)){
+			throw new InvalidEmailException("The email " + email + " format is invalid.");
+		}	
+	}
 }
+
