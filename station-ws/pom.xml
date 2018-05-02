@@ -28,7 +28,7 @@
 		<ws.url>http://${ws.host}:${ws.port}/station-ws/endpoint</ws.url>
 
 		<ws.name>A47_Station${ws.i}</ws.name>
-		<uddi.url>http://localhost:9090</uddi.url>
+		<uddi.url>http://a47:UZB3aXw@uddi.sd.rnl.tecnico.ulisboa.pt:9090/</uddi.url>
 
 	</properties>
 
