@@ -1,5 +1,6 @@
 package org.binas.ws;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.jws.WebService;
 import javax.xml.ws.Response;
+import javax.xml.ws.WebServiceException;
 
 import org.binas.domain.BinasManager;
 import org.binas.station.ws.AccountView;
@@ -68,7 +70,7 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public int getCredit(String email) throws UserNotExists_Exception {
-		return 0;
+		return getBalance(email);
 	}
 
 	@Override
@@ -169,15 +171,16 @@ public class BinasPortImpl implements BinasPortType {
 	}
 	
 	
-	private int getBalance(String email) throws InterruptedException, ExecutionException {
+	private int getBalance(String email) {
 		int numberOfReplics = binasEndpointManager.getReplicsNumber();
-		ArrayList<StationClient> replics = new ArrayList<StationClient>();
+		HashMap<String, StationClient> replics = new HashMap<String, StationClient>();
 		//search replica and try 3 times to connect(on fail)
 		for(int i = 1; i <= numberOfReplics; i++){
 			int numberOfTries = 0;
 			while(numberOfTries != 3) {
 				try {
-					replics.add(binasManager.getStation("A47_Station" + i));
+					String wsName = "A47_Station" + i;
+					replics.put(wsName, binasManager.getStation(wsName));
 					break;
 				} 
 				catch (InvalidStationException e) {
@@ -185,28 +188,63 @@ public class BinasPortImpl implements BinasPortType {
 				}
 			}
 		}
-		
+
 		HashMap<String, Response<GetBalanceResponse>> responses = new HashMap<>();
 		int numberOfResponses = 0;
 		
-		for(StationClient client : replics) {
-			responses.put(client.getWsName(), client.getBalanceAsync(email));
+		for(String stationsName  : replics.keySet()) {
+			StationClient client = replics.get(stationsName);
+			responses.put(stationsName, client.getBalanceAsync(email));
 		}
 		
+		//Get quorum
 		ArrayList<AccountView> accountViews = new ArrayList<>();
 		while(numberOfResponses != (numberOfReplics/2 + 1)) {
 			for(String stationsName : responses.keySet()) {
 				if(responses.get(stationsName).isDone()) {
-					accountViews.add(responses.get(stationsName).get().getAccountInfo());
-					responses.remove(stationsName);
-					numberOfResponses++;
+					try {
+						accountViews.add(responses.get(stationsName).get().getAccountInfo());
+						responses.remove(stationsName);
+						numberOfResponses++;
+					} catch (InterruptedException | ExecutionException e) {
+						//try again, send the query
+						responses.remove(stationsName);
+						responses.put(stationsName, replics.get(stationsName).getBalanceAsync(email));
+					} catch(WebServiceException wse) {
+		                Throwable cause = wse.getCause();
+		                if (cause != null && cause instanceof SocketTimeoutException) {
+		                	//try again, send the query
+							responses.remove(stationsName);
+							responses.put(stationsName, replics.get(stationsName).getBalanceAsync(email));
+		                }
+		            }
+					
+				}
+			}
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				//do nothing
+			}
+		}
+
+		//give answer by tag
+		AccountView latestVersion = null;
+		for(AccountView accountView : accountViews){
+			if(latestVersion == null){
+				latestVersion = accountView;
+			}
+			else if(accountView.getTag() > latestVersion.getTag()){
+				latestVersion = accountView;
+			}
+			else if(accountView.getTag() == latestVersion.getTag()){
+				if(accountView.getClientID() > latestVersion.getClientID()){
+					latestVersion = accountView;
 				}
 			}
 		}
 		
-
-		
-		return 0;
+		return latestVersion.getCredit();
 	}
 
 }

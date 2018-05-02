@@ -15,6 +15,10 @@ public class BinasApp {
 			wsName = args[1];
 			wsURL = args[2];
 			replics = Integer.parseInt(args[3]);
+			if(replics < 3){
+				System.out.println("Number of Replics should be greater or equals to 3.");
+				return;
+			}
 			endpoint = new BinasEndpointManager(uddiURL, wsName, wsURL, replics);
 			System.out.println("{wsName = " + wsName + ", wsURL = " + wsURL + ", uddiURL = " + uddiURL + ", replics = " + replics + "}");
 		}

@@ -1,5 +1,7 @@
 package org.binas.station.ws.cli;
 
+import java.awt.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.Future;
 
@@ -111,13 +113,24 @@ public class StationClient implements StationPortType {
 		service = new StationService();
 
 		port = service.getStationPort();
-		
+				
 		if (this.wsURL != null) {
 			if (verbose)
 				System.out.println("Setting endpoint address ...");
 			BindingProvider bindingProvider = (BindingProvider) port;
 			Map<String, Object> requestContext = bindingProvider.getRequestContext();
 			requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, this.wsURL);
+			//set timeouts
+			int timeout = 2000;
+			final ArrayList<String> RECV_TIME_PROPS = new ArrayList<String>();
+	        RECV_TIME_PROPS.add("com.sun.xml.ws.request.timeout");
+	        RECV_TIME_PROPS.add("com.sun.xml.internal.ws.request.timeout");
+	        RECV_TIME_PROPS.add("javax.xml.ws.client.receiveTimeout");
+	        // Set timeout until the response is received (unit is milliseconds; 0 means infinite)
+	        for (String propName : RECV_TIME_PROPS){
+	            requestContext.put(propName, timeout);
+	        }
+	        System.out.printf("Set receive timeout to %d milliseconds%n", timeout);
 		}
 	}
 
