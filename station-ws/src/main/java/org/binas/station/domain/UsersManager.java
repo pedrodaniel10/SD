@@ -43,12 +43,9 @@ public class UsersManager {
 	 * @throws EmailExistsException
 	 */
 	public synchronized boolean addUser(String email, int credit, int tag, int clientID) throws InvalidFormatEmailException, InvalidCreditException {
-		if(stringNullOrEmpty(email)){
-			throw new InvalidFormatEmailException("The email can not be null or empty.");
-		}
+		checkEmail(email);
 		if(users.get(email) == null){
 			User user = new User(email, initialBalance.get());
-			users.put(email, user);
 			user.setClientID(clientID);
 			user.setTag(tag);
 			try {
@@ -56,7 +53,7 @@ public class UsersManager {
 			} catch (InvalidCreditException e) {
 				throw new InvalidCreditException("Credit Given is invalid.");
 			}
-
+			users.put(email, user);
 			return true;
 		}
 		return false;
@@ -70,9 +67,7 @@ public class UsersManager {
 	 * @throws  
 	 */
 	public User getUser(String email) throws UserDoesNotExistsException, InvalidFormatEmailException {
-		if(stringNullOrEmpty(email)){
-			throw new InvalidFormatEmailException("The email can not be null or empty.");
-		}
+		checkEmail(email);
 		User user = users.get(email);
 		if(user == null){
 			throw new UserDoesNotExistsException("The user with email " + email + " doesn't exists.");
@@ -84,15 +79,15 @@ public class UsersManager {
 		users.clear();
 	}
 	
-	// Auxiliary Functions
-	/**
-	 * @param string
-	 * @return
-	 */
-	private boolean stringNullOrEmpty(String string){
-		if(string == null || string.trim().equals("")){
-			return true;
+	// Auxiliary Functions	
+	private void checkEmail(String email) throws InvalidFormatEmailException {
+		final String regex = "^(([a-zA-Z0-9]+)|([a-zA-Z0-9]+\\.?[a-zA-Z0-9]+)+)@(([a-zA-Z0-9]+)|([a-zA-Z0-9]+\\.?[a-zA-Z0-9]+)+)";
+		
+		if(email == null || email.trim().equals("")){
+			throw new InvalidFormatEmailException("The email can not be null or empty.");
 		}
-		return false;
+		if(!email.matches(regex)){
+			throw new InvalidFormatEmailException("The email " + email + " format is invalid.");
+		}	
 	}
 }

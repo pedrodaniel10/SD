@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 import javax.xml.ws.Response;
@@ -54,7 +55,6 @@ public class BinasManager {
 		return SingletonHolder.INSTANCE;
 	}	
 
-	private int tag = 0;
 	private int clientID = 0;
 	
 	/**UDDI URL to search for stations*/
@@ -71,10 +71,11 @@ public class BinasManager {
 		int initialBalance = UsersManager.getInstance().getInitialBalance();
 		try {
 			getBalance(email);
+			throw new EmailExistsException("User with email " + email + " already exists.");
 		} catch (UserNotExistsException e) {
 			try {
 				UserView userView = UsersManager.getInstance().addUser(email);
-				setBalance(email, initialBalance, getTag(),	getClientID());
+				setBalance(email, initialBalance, getTag(email), getClientID());
 				userView.setCredit(initialBalance);
 				return userView;
 			} catch (NoCreditException e1) {
@@ -104,7 +105,7 @@ public class BinasManager {
 				if(stationView.getAvailableBinas() == 0) {
 					throw new NoBinaAvailException("There are no available binas in the station");
 				}
-				if(getBalance(email) < 1) {
+				if(getCredit(email) < 1) {
 					throw new NoCreditException("The user" + user.getEmail() + "does't have enough credits");
 				}
 				
@@ -112,8 +113,8 @@ public class BinasManager {
 					synchronized(user){
 						stationC.getBina();
 						user.setHasBina(true);
-						int balanceToSet = getBalance(email) - 1;
-						setBalance(email, balanceToSet, getTag(), getClientID());
+						int balanceToSet = getCredit(email) - 1;
+						setBalance(email, balanceToSet, getTag(email), getClientID());
 					}
 				}		
 			}
@@ -139,8 +140,8 @@ public class BinasManager {
 			synchronized(user){
 				int bonus = stationC.returnBina();
 				user.setHasBina(false);
-				int creditToSet = getBalance(email) + bonus;
-				setBalance(email, creditToSet, getTag(), getClientID());
+				int creditToSet = getCredit(email) + bonus;
+				setBalance(email, creditToSet, getTag(email), getClientID());
 			}
 			
 		}
@@ -206,7 +207,7 @@ public class BinasManager {
 			throw new BadInitException(e.getMessage());
 		}
 	}
-	
+		
 	public String ping(String inputMessage, String wsName) {
 		if(inputMessage == null || inputMessage.trim().equals("")){
 			inputMessage = "friend";
@@ -299,8 +300,12 @@ public class BinasManager {
 		return svBinas;	
 	}
 	
-	public synchronized int getTag(){
-		return this.tag++;
+	public synchronized int getTag(String email) throws InvalidEmailException{
+		try {
+			return getBalance(email).getTag() + 1;
+		} catch (UserNotExistsException e) {
+			return 0;
+		}
 	}
 	
 	public synchronized int getClientID(){
@@ -311,8 +316,9 @@ public class BinasManager {
 		this.numberOfReplics = replicsNumber;		
 	}
 
-	private int getBalance(String email) throws InvalidEmailException, UserNotExistsException {
+	public synchronized AccountView getBalance(String email) throws InvalidEmailException, UserNotExistsException {
 		HashMap<String, StationClient> replics = new HashMap<String, StationClient>();
+		System.out.println("GetBalance called for email: " + email);
 		//search replica and try 3 times to connect(on fail)
 		for(int i = 1; i <= numberOfReplics; i++){
 			int numberOfTries = 0;
@@ -320,7 +326,6 @@ public class BinasManager {
 				try {
 					String wsName = "A47_Station" + i;
 					replics.put(wsName, getStation(wsName));
-					System.out.println("Connecting to " + wsName);
 					break;
 				} 
 				catch (InvalidStationException e) {
@@ -329,7 +334,7 @@ public class BinasManager {
 			}
 		}
 
-		HashMap<String, Response<GetBalanceResponse>> responses = new HashMap<>();
+		ConcurrentHashMap<String, Response<GetBalanceResponse>> responses = new ConcurrentHashMap<>();
 		ArrayList<Throwable> exceptionsCaught = new ArrayList<Throwable>();
 		int numberOfResponses = 0;
 		
@@ -341,7 +346,7 @@ public class BinasManager {
 		
 		//Get quorum
 		ArrayList<AccountView> accountViews = new ArrayList<>();
-		while(numberOfResponses != (numberOfReplics/2 + 1)) {
+		while(numberOfResponses < (numberOfReplics/2 + 1)) {
 			for(String stationsName : responses.keySet()) {
 				if(responses.get(stationsName).isDone()) {
 					try {
@@ -415,12 +420,13 @@ public class BinasManager {
 				throw new UserNotExistsException();
 			}
 		}
-		return latestVersion.getCredit();
+		return latestVersion;
 	}
 	
 	
-	private boolean setBalance(String email, int credit, int tag, int clientID) throws NoCreditException, InvalidEmailException {
+	private synchronized boolean setBalance(String email, int credit, int tag, int clientID) throws NoCreditException, InvalidEmailException {
 		HashMap<String, StationClient> replics = new HashMap<String, StationClient>();
+		System.out.println("SetBalance called with arguments: email=" + email + ", credit=" + credit + ", tag=" + tag + ", clientID=" + clientID );
 		//search replica and try 3 times to connect(on fail)
 		for(int i = 1; i <= numberOfReplics; i++){
 			int numberOfTries = 0;
@@ -436,7 +442,7 @@ public class BinasManager {
 			}
 		}
 
-		HashMap<String, Response<SetBalanceResponse>> responses = new HashMap<>();
+		ConcurrentHashMap<String, Response<SetBalanceResponse>> responses = new ConcurrentHashMap<>();
 		ArrayList<Throwable> exceptionsCaught = new ArrayList<Throwable>();
 		int numberOfResponses = 0;
 		
@@ -448,7 +454,7 @@ public class BinasManager {
 		
 		//Get quorum
 		ArrayList<String> ackOk = new ArrayList<String>();
-		while(numberOfResponses != (numberOfReplics/2 + 1)) {
+		while(numberOfResponses < (numberOfReplics/2 + 1)) {
 			for(String stationsName : responses.keySet()) {
 				if(responses.get(stationsName).isDone()) {
 					try {
@@ -517,5 +523,21 @@ public class BinasManager {
 		}
 		
 		return true;
+	}
+
+	public int getCredit(String email) throws InvalidEmailException, UserNotExistsException {
+		checkEmail(email);
+		return getBalance(email).getCredit();
+	}
+	
+	private void checkEmail(String email) throws InvalidEmailException {
+		final String regex = "^(([a-zA-Z0-9]+)|([a-zA-Z0-9]+\\.?[a-zA-Z0-9]+)+)@(([a-zA-Z0-9]+)|([a-zA-Z0-9]+\\.?[a-zA-Z0-9]+)+)";
+		
+		if(email == null || email.trim().equals("")){
+			throw new InvalidEmailException("The email can not be null or empty.");
+		}
+		if(!email.matches(regex)){
+			throw new InvalidEmailException("The email " + email + " format is invalid.");
+		}	
 	}
 }

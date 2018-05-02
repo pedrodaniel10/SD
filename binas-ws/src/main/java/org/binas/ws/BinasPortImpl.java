@@ -76,8 +76,7 @@ public class BinasPortImpl implements BinasPortType {
 	@Override
 	public int getCredit(String email) throws UserNotExists_Exception {		
 		try {
-			checkEmail(email);
-			return getBalance(email);
+			return binasManager.getCredit(email);
 		} catch (InvalidEmailException | UserNotExistsException e) {
 			ExceptionsHelper.throwUserNotExists(e.getMessage());
 		}
@@ -86,24 +85,14 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception {
-		int initialBalance = UsersManager.getInstance().getInitialBalance();
 		try {
-			checkEmail(email);
-			getBalance(email);
+			return binasManager.addUser(email);
 		} catch (InvalidEmailException e) {
+			ExceptionsHelper.throwInvalidEmail(e.getMessage());
+		} catch (EmailExistsException e) {
 			ExceptionsHelper.throwEmailExists(e.getMessage());
-		} catch (UserNotExistsException e) {
-			try {
-				setBalance(email, initialBalance, BinasManager.getInstance().getTag(),
-								BinasManager.getInstance().getClientID());
-			} catch (NoCreditException e1) {
-				// doesnt happen
-				e1.printStackTrace();
-			} catch (InvalidEmailException e1) {
-				ExceptionsHelper.throwInvalidEmail(e1.getMessage());
-			}
 		}
-		return newUserView(email, initialBalance, false);
+		return null;
 	}
 
 	@Override
@@ -187,227 +176,6 @@ public class BinasPortImpl implements BinasPortType {
 		svBinas.setTotalGets(stationView.getTotalGets());
 		svBinas.setTotalReturns(stationView.getTotalReturns());
 		return svBinas;	
-	}
-	
-	
-	private int getBalance(String email) throws InvalidEmailException, UserNotExistsException {
-		int numberOfReplics = binasEndpointManager.getReplicsNumber();
-		HashMap<String, StationClient> replics = new HashMap<String, StationClient>();
-		//search replica and try 3 times to connect(on fail)
-		for(int i = 1; i <= numberOfReplics; i++){
-			int numberOfTries = 0;
-			while(numberOfTries != 3) {
-				try {
-					String wsName = "A47_Station" + i;
-					replics.put(wsName, binasManager.getStation(wsName));
-					break;
-				} 
-				catch (InvalidStationException e) {
-					numberOfTries++;
-				}
-			}
-		}
-
-		HashMap<String, Response<GetBalanceResponse>> responses = new HashMap<>();
-		ArrayList<Throwable> exceptionsCaught = new ArrayList<Throwable>();
-		int numberOfResponses = 0;
-		
-		//Make requests
-		for(String stationsName  : replics.keySet()) {
-			StationClient client = replics.get(stationsName);
-			responses.put(stationsName, client.getBalanceAsync(email));
-		}
-		
-		//Get quorum
-		ArrayList<AccountView> accountViews = new ArrayList<>();
-		while(numberOfResponses != (numberOfReplics/2 + 1)) {
-			for(String stationsName : responses.keySet()) {
-				if(responses.get(stationsName).isDone()) {
-					try {
-						accountViews.add(responses.get(stationsName).get().getAccountInfo());
-						responses.remove(stationsName);
-						numberOfResponses++;
-					} catch(ExecutionException e){
-						Throwable cause = e.getCause();
-						if(cause != null && (cause instanceof InvalidFormatEmail_Exception ||
-											 cause instanceof UserDoesNotExists_Exception)){
-							exceptionsCaught.add(cause);
-							numberOfResponses++;
-						}
-						else{
-							//try again, send the query
-							responses.remove(stationsName);
-							responses.put(stationsName, replics.get(stationsName).getBalanceAsync(email));
-						}
-					} catch (InterruptedException e) {
-						//try again, send the query
-						responses.remove(stationsName);
-						responses.put(stationsName, replics.get(stationsName).getBalanceAsync(email));
-					} catch(WebServiceException wse) {
-		                Throwable cause = wse.getCause();
-		                if (cause != null && cause instanceof SocketTimeoutException) {
-		                	//try again, send the query
-							responses.remove(stationsName);
-							responses.put(stationsName, replics.get(stationsName).getBalanceAsync(email));
-		                }
-		            }
-				}
-			}
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				//do nothing
-			}
-		}
-
-		//give answer by tag
-		AccountView latestVersion = null;
-		for(AccountView accountView : accountViews){
-			if(latestVersion == null){
-				latestVersion = accountView;
-			}
-			else if(accountView.getTag() > latestVersion.getTag()){
-				latestVersion = accountView;
-			}
-			else if(accountView.getTag() == latestVersion.getTag()){
-				if(accountView.getClientID() > latestVersion.getClientID()){
-					latestVersion = accountView;
-				}
-			}
-		}
-		//caught only exceptions
-		if(latestVersion == null){
-			int numberOfInvalid = 0;
-			int numberOfUserNotExists = 0;
-			for(Throwable exception : exceptionsCaught){
-				if(exception instanceof InvalidFormatEmail_Exception){
-					numberOfInvalid++;
-				}
-				else if (exception instanceof UserDoesNotExists_Exception){
-					numberOfUserNotExists++;
-				}
-			}
-			if(numberOfInvalid > numberOfUserNotExists){
-				throw new InvalidEmailException();
-			}
-			else {
-				throw new UserNotExistsException();
-			}
-		}
-		return latestVersion.getCredit();
-	}
-	
-	
-	private boolean setBalance(String email, int credit, int tag, int clientID) throws NoCreditException, InvalidEmailException {
-		int numberOfReplics = binasEndpointManager.getReplicsNumber();
-		HashMap<String, StationClient> replics = new HashMap<String, StationClient>();
-		//search replica and try 3 times to connect(on fail)
-		for(int i = 1; i <= numberOfReplics; i++){
-			int numberOfTries = 0;
-			while(numberOfTries != 3) {
-				try {
-					String wsName = "A47_Station" + i;
-					replics.put(wsName, binasManager.getStation(wsName));
-					break;
-				} 
-				catch (InvalidStationException e) {
-					numberOfTries++;
-				}
-			}
-		}
-
-		HashMap<String, Response<SetBalanceResponse>> responses = new HashMap<>();
-		ArrayList<Throwable> exceptionsCaught = new ArrayList<Throwable>();
-		int numberOfResponses = 0;
-		
-		//Make requests
-		for(String stationsName  : replics.keySet()) {
-			StationClient client = replics.get(stationsName);
-			responses.put(stationsName, client.setBalanceAsync(email, credit, tag, clientID));
-		}
-		
-		//Get quorum
-		ArrayList<String> ackOk = new ArrayList<String>();
-		while(numberOfResponses != (numberOfReplics/2 + 1)) {
-			for(String stationsName : responses.keySet()) {
-				if(responses.get(stationsName).isDone()) {
-					try {
-						if(responses.get(stationsName).get().isBalanceBool()){
-							ackOk.add(stationsName);
-							responses.remove(stationsName);
-							numberOfResponses++;
-						}
-						else {
-							//try again, send the query
-							responses.remove(stationsName);
-							responses.put(stationsName, replics.get(stationsName).setBalanceAsync(email, credit, tag, clientID));
-						}
-					} catch(ExecutionException e){
-						Throwable cause = e.getCause();
-						if(cause != null && (cause instanceof InvalidFormatEmail_Exception ||
-											 cause instanceof UserDoesNotExists_Exception)){
-							exceptionsCaught.add(cause);
-							numberOfResponses++;
-						}
-						else{
-							//try again, send the query
-							responses.remove(stationsName);
-							responses.put(stationsName, replics.get(stationsName).setBalanceAsync(email, credit, tag, clientID));
-						}
-					} catch (InterruptedException e) {
-						//try again, send the query
-						responses.remove(stationsName);
-						responses.put(stationsName, replics.get(stationsName).setBalanceAsync(email, credit, tag, clientID));
-					} catch(WebServiceException wse) {
-		                Throwable cause = wse.getCause();
-		                if (cause != null && cause instanceof SocketTimeoutException) {
-		                	//try again, send the query
-							responses.remove(stationsName);
-							responses.put(stationsName, replics.get(stationsName).setBalanceAsync(email, credit, tag, clientID));
-		                }
-		            }
-				}
-			}
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				//do nothing
-			}
-		}
-
-		if(ackOk.size() < exceptionsCaught.size()){
-			int numberOfInvalidCredit = 0;
-			int numberOfInvalidFormatEmail = 0;
-			
-			for(Throwable exception : exceptionsCaught){
-				if(exception instanceof InvalidCredit_Exception){
-					numberOfInvalidCredit++;
-				}
-				else if(exception instanceof InvalidFormatEmail_Exception){
-					numberOfInvalidFormatEmail++;
-				}
-			}
-			
-			if(numberOfInvalidCredit > numberOfInvalidFormatEmail){
-				throw new NoCreditException();
-			}
-			else{
-				throw new InvalidEmailException();
-			}
-		}
-		
-		return true;
-	}
-	
-	private void checkEmail(String email) throws InvalidEmailException {
-		final String regex = "^(([a-zA-Z0-9]+)|([a-zA-Z0-9]+\\.?[a-zA-Z0-9]+)+)@(([a-zA-Z0-9]+)|([a-zA-Z0-9]+\\.?[a-zA-Z0-9]+)+)";
-		
-		if(email == null || email.trim().equals("")){
-			throw new InvalidEmailException("The email can not be null or empty.");
-		}
-		if(!email.matches(regex)){
-			throw new InvalidEmailException("The email " + email + " format is invalid.");
-		}	
 	}
 	
 	private UserView newUserView(String email, int credit, boolean hasBina) {

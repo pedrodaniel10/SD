@@ -130,7 +130,6 @@ public class StationClient implements StationPortType {
 	        for (String propName : RECV_TIME_PROPS){
 	            requestContext.put(propName, timeout);
 	        }
-	        System.out.printf("Set receive timeout to %d milliseconds%n", timeout);
 		}
 	}
 

@@ -2,63 +2,154 @@ package org.binas.station.ws.it;
 
 import static org.junit.Assert.*;
 
+import java.util.concurrent.ExecutionException;
+
+import javax.xml.ws.Response;
+
+import org.binas.station.ws.AccountView;
 import org.binas.station.ws.BadInit_Exception;
+import org.binas.station.ws.GetBalanceResponse;
+import org.binas.station.ws.InvalidCredit_Exception;
+import org.binas.station.ws.InvalidFormatEmail_Exception;
 import org.binas.station.ws.NoBinaAvail_Exception;
-import org.binas.station.ws.NoSlotAvail_Exception;
-import org.binas.station.ws.StationView;
+import org.binas.station.ws.UserDoesNotExists_Exception;
 import org.junit.After;
 import org.junit.Test;
 
 public class GetBalanceIT extends BaseIT {
-
 	@Test
-	public void sucess() throws NoBinaAvail_Exception, BadInit_Exception{
+	public void sucess() throws NoBinaAvail_Exception, BadInit_Exception, InvalidCredit_Exception, InvalidFormatEmail_Exception, InterruptedException, ExecutionException{
 		client.testInit(3, 3, 30, 0);
-		client.getBina();
+		client.setBalance("mariana.mendes@gmail.com", 10, 0, 0);
 		
-		StationView stationView = client.getInfo();
+		Response<GetBalanceResponse> response = client.getBalanceAsync("mariana.mendes@gmail.com");
 		
-		assertEquals(1, stationView.getTotalGets());
-		assertEquals(1, stationView.getFreeDocks());
-		assertEquals(29, stationView.getAvailableBinas());
-	}
-	
-	@Test(expected = NoBinaAvail_Exception.class)
-	public void noBikesAvailable() throws NoBinaAvail_Exception, BadInit_Exception{
-		client.testInit(3, 3, 0, 0);
-		client.getBina();
+		AccountView accountView = null;
+		while(true){
+			if(response.isDone()){
+				accountView = response.get().getAccountInfo();
+				break;
+			}
+		}
+		assertNotNull(accountView);
+		assertEquals(10, accountView.getCredit());
+		assertEquals(0, accountView.getTag());
+		assertEquals(0, accountView.getClientID());
 	}
 	
 	@Test
-	public void manyBikes() throws BadInit_Exception, NoBinaAvail_Exception, NoSlotAvail_Exception{
-		client.testInit(3, 3, 30, 0);
-		for(int i = 0; i < 30; i++){
-			client.getBina();
+	public void nullEmail(){
+		Response<GetBalanceResponse> response = client.getBalanceAsync(null);
+		
+		while(true){
+			if(response.isDone()){
+				try {
+					response.get().getAccountInfo();
+					fail();
+				} catch (InterruptedException e) {
+					fail();
+				} catch (ExecutionException e) {
+					if(e.getCause() instanceof InvalidFormatEmail_Exception){
+						break;
+					}
+					else{
+						fail();
+					}
+				}
+			}
 		}
+	}
 		
-		for(int i = 0; i < 30; i++){
-				client.returnBina();
+	@Test
+	public void emptyEmail(){
+		Response<GetBalanceResponse> response = client.getBalanceAsync("");
+		
+		while(true){
+			if(response.isDone()){
+				try {
+					response.get().getAccountInfo();
+					fail();
+				} catch (InterruptedException e) {
+					fail();
+				} catch (ExecutionException e) {
+					if(e.getCause() instanceof InvalidFormatEmail_Exception){
+						break;
+					}
+					else{
+						fail();
+					}
+				}
+			}
 		}
-		
-		for(int i = 0; i < 30; i++){
-			client.getBina();
-		}
-		
-		StationView stationView = client.getInfo();
-		
-		assertEquals(60, stationView.getTotalGets());
-		assertEquals(30, stationView.getFreeDocks());
-		assertEquals(0, stationView.getAvailableBinas());
 	}
 	
-	@Test(expected = NoBinaAvail_Exception.class)
-	public void moreGetsThanAvailableBinas() throws BadInit_Exception, NoBinaAvail_Exception, NoSlotAvail_Exception{
-		client.testInit(3, 3, 30, 0);
-		for(int i = 0; i < 30; i++){
-			client.getBina();
-		}
+	@Test
+	public void blankEmail(){
+		Response<GetBalanceResponse> response = client.getBalanceAsync("    ");
 		
-		client.getBina();
+		while(true){
+			if(response.isDone()){
+				try {
+					response.get().getAccountInfo();
+					fail();
+				} catch (InterruptedException e) {
+					fail();
+				} catch (ExecutionException e) {
+					if(e.getCause() instanceof InvalidFormatEmail_Exception){
+						break;
+					}
+					else{
+						fail();
+					}
+				}
+			}
+		}
+	}
+	
+	@Test
+	public void wrongEmail(){
+		Response<GetBalanceResponse> response = client.getBalanceAsync("wrongEmail");
+		
+		while(true){
+			if(response.isDone()){
+				try {
+					response.get().getAccountInfo();
+					fail();
+				} catch (InterruptedException e) {
+					fail();
+				} catch (ExecutionException e) {
+					if(e.getCause() instanceof InvalidFormatEmail_Exception){
+						break;
+					}
+					else{
+						fail();
+					}
+				}
+			}
+		}
+	}
+	
+	@Test
+	public void nonExistingEmail(){
+		Response<GetBalanceResponse> response = client.getBalanceAsync("mariana.mendes@gmail.com");
+		
+		while(true){
+			if(response.isDone()){
+				try {
+					response.get().getAccountInfo();
+					fail();
+				} catch (InterruptedException e) {
+					fail();
+				} catch (ExecutionException e) {
+					if(e.getCause() instanceof UserDoesNotExists_Exception){
+						break;
+					}
+					else{
+						fail();
+					}
+				}
+			}
+		}
 	}
 	
 	@After

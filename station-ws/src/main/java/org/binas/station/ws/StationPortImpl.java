@@ -164,6 +164,7 @@ public class StationPortImpl implements StationPortType {
 			ExceptionsHelper.throwBadInit("Invalid initialization values!");
 		}
 	}
+	
 
 	// View helpers ----------------------------------------------------------
 
