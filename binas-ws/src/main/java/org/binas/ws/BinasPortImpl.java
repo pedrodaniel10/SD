@@ -14,6 +14,7 @@ import org.binas.domain.BinasManager;
 import org.binas.station.ws.AccountView;
 import org.binas.station.ws.GetBalanceResponse;
 import org.binas.station.ws.InvalidFormatEmail_Exception;
+import org.binas.station.ws.SetBalanceResponse;
 import org.binas.station.ws.UserDoesNotExists_Exception;
 import org.binas.station.ws.cli.StationClient;
 
@@ -198,6 +199,7 @@ public class BinasPortImpl implements BinasPortType {
 		}
 
 		HashMap<String, Response<GetBalanceResponse>> responses = new HashMap<>();
+		ArrayList<Throwable> exceptionsCaught = new ArrayList<Throwable>();
 		int numberOfResponses = 0;
 		
 		//Make requests
@@ -217,11 +219,10 @@ public class BinasPortImpl implements BinasPortType {
 						numberOfResponses++;
 					} catch(ExecutionException e){
 						Throwable cause = e.getCause();
-						if(cause != null && cause instanceof InvalidFormatEmail_Exception){
-							throw new InvalidEmailException(e.getMessage());
-						}
-						else if(cause != null && cause instanceof UserDoesNotExists_Exception){
-							throw new UserNotExistsException(e.getMessage());
+						if(cause != null && (cause instanceof InvalidFormatEmail_Exception ||
+											 cause instanceof UserDoesNotExists_Exception)){
+							exceptionsCaught.add(cause);
+							numberOfResponses++;
 						}
 						else{
 							//try again, send the query
@@ -264,6 +265,25 @@ public class BinasPortImpl implements BinasPortType {
 				}
 			}
 		}
+		
+		if(latestVersion == null){
+			int numberOfInvalid = 0;
+			int numberOfUserNotExists = 0;
+			for(Throwable exception : exceptionsCaught){
+				if(exception instanceof InvalidFormatEmail_Exception){
+					numberOfInvalid++;
+				}
+				else if (exception instanceof UserDoesNotExists_Exception){
+					numberOfUserNotExists++;
+				}
+			}
+			if(numberOfInvalid > numberOfUserNotExists){
+				throw new InvalidEmailException();
+			}
+			else {
+				throw new UserNotExistsException();
+			}
+		}
 		return latestVersion.getCredit();
 	}
 	
@@ -287,6 +307,7 @@ public class BinasPortImpl implements BinasPortType {
 		}
 
 		HashMap<String, Response<SetBalanceResponse>> responses = new HashMap<>();
+		ArrayList<Throwable> exceptionsCaught = new ArrayList<Throwable>();
 		int numberOfResponses = 0;
 		
 		//Make requests
@@ -296,15 +317,27 @@ public class BinasPortImpl implements BinasPortType {
 		}
 		
 		//Get quorum
-		ArrayList<Boolean> booleanArray = new ArrayList<>();
+		ArrayList<String> ackOk = new ArrayList<String>();
 		while(numberOfResponses != (numberOfReplics/2 + 1)) {
 			for(String stationsName : responses.keySet()) {
 				if(responses.get(stationsName).isDone()) {
 					try {
-						booleanArray.add(true); //isto esta bem?
+						if(setBalanceAsync(email, credit, tag, clientID))
 						responses.remove(stationsName);
 						numberOfResponses++;
-					} catch (InterruptedException | ExecutionException e) {
+					} catch(ExecutionException e){
+						Throwable cause = e.getCause();
+						if(cause != null && (cause instanceof InvalidFormatEmail_Exception ||
+											 cause instanceof UserDoesNotExists_Exception)){
+							exceptionsCaught.add(cause);
+							numberOfResponses++;
+						}
+						else{
+							//try again, send the query
+							responses.remove(stationsName);
+							responses.put(stationsName, replics.get(stationsName).setBalanceAsync(email, credit, tag, clientID));
+						}
+					} catch (InterruptedException e) {
 						//try again, send the query
 						responses.remove(stationsName);
 						responses.put(stationsName, replics.get(stationsName).setBalanceAsync(email, credit, tag, clientID));
@@ -325,22 +358,7 @@ public class BinasPortImpl implements BinasPortType {
 			}
 		}
 
-		//give answer by tag
-		boolean latestVersion = false;
-		for(boolean b : booleanArray){
-			if(latestVersion == false){
-				latestVersion = b;
-			}
-			else if(accountView.getTag() > latestVersion.getTag()){
-				latestVersion = accountView;
-			}
-			else if(accountView.getTag() == latestVersion.getTag()){
-				if(accountView.getClientID() > latestVersion.getClientID()){
-					latestVersion = accountView;
-				}
-			}
-		}
-		return latestVersion.getCredit();
+		return true;
 	}
 	
 	private void checkEmail(String email) throws InvalidEmailException {
