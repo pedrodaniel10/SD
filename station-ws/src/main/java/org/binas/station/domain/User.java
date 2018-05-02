@@ -63,19 +63,19 @@ public class User {
 		this.credit = amount;
 	}
 
-	public int getClientID() {
+	public synchronized int getClientID() {
 		return clientID;
 	}
 
-	public void setClientID(int clientID) {
+	public synchronized void setClientID(int clientID) {
 		this.clientID = clientID;
 	}
 
-	public int getTag() {
+	public synchronized int getTag() {
 		return tag;
 	}
 
-	public void setTag(int tag) {
+	public synchronized void setTag(int tag) {
 		this.tag = tag;
 	}
 }

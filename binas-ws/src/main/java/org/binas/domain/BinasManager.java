@@ -230,7 +230,13 @@ public class BinasManager {
 		UsersManager.getInstance().reset();
 		List<StationClient> listStations = this.getAllStations();
 		for(StationClient stationClient : listStations){
-			stationClient.testClear();
+			try{
+				stationClient.testClear();
+			} catch(WebServiceException e){
+				// runtime exception that caught connections issues
+				// this catch is only to prevent crash and just ignores 
+				// clean station.
+			}
 		}
 	}
 	
