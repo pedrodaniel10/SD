@@ -13,6 +13,8 @@ import javax.xml.ws.WebServiceException;
 import org.binas.domain.BinasManager;
 import org.binas.station.ws.AccountView;
 import org.binas.station.ws.GetBalanceResponse;
+import org.binas.station.ws.InvalidFormatEmail_Exception;
+import org.binas.station.ws.UserDoesNotExists_Exception;
 import org.binas.station.ws.cli.StationClient;
 
 import exceptions.AlreadyHasBinaException;
@@ -70,7 +72,12 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public int getCredit(String email) throws UserNotExists_Exception {
-		return getBalance(email);
+		try {
+			return getBalance(email);
+		} catch (InvalidEmailException | UserNotExistsException e) {
+			ExceptionsHelper.throwUserNotExists(e.getMessage());
+		}
+		return -1;
 	}
 
 	@Override
@@ -171,7 +178,7 @@ public class BinasPortImpl implements BinasPortType {
 	}
 	
 	
-	private int getBalance(String email) {
+	private int getBalance(String email) throws InvalidEmailException, UserNotExistsException {
 		int numberOfReplics = binasEndpointManager.getReplicsNumber();
 		HashMap<String, StationClient> replics = new HashMap<String, StationClient>();
 		//search replica and try 3 times to connect(on fail)
@@ -206,7 +213,20 @@ public class BinasPortImpl implements BinasPortType {
 						accountViews.add(responses.get(stationsName).get().getAccountInfo());
 						responses.remove(stationsName);
 						numberOfResponses++;
-					} catch (InterruptedException | ExecutionException e) {
+					} catch(ExecutionException e){
+						Throwable cause = e.getCause();
+						if(cause != null && cause instanceof InvalidFormatEmail_Exception){
+							throw new InvalidEmailException(e.getMessage());
+						}
+						else if(cause != null && cause instanceof UserDoesNotExists_Exception){
+							throw new UserNotExistsException(e.getMessage());
+						}
+						else{
+							//try again, send the query
+							responses.remove(stationsName);
+							responses.put(stationsName, replics.get(stationsName).getBalanceAsync(email));
+						}
+					} catch (InterruptedException e) {
 						//try again, send the query
 						responses.remove(stationsName);
 						responses.put(stationsName, replics.get(stationsName).getBalanceAsync(email));

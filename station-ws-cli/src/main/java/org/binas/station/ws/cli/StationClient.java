@@ -169,17 +169,8 @@ public class StationClient implements StationPortType {
 	}
 
 	@Override
-	public AccountView getBalance(String userEmail) {
-		try {
-			return port.getBalance(userEmail);
-		} catch (InvalidFormatEmail_Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UserDoesNotExists_Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+	public AccountView getBalance(String userEmail) throws InvalidFormatEmail_Exception, UserDoesNotExists_Exception {
+		return port.getBalance(userEmail);
 	}
 
 	@Override
