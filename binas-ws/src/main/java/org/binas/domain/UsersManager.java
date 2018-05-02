@@ -34,6 +34,10 @@ public class UsersManager {
 	private static int DEFAULT_INITIAL_BALANCE = 10;
 	private AtomicInteger initialBalance = new AtomicInteger(DEFAULT_INITIAL_BALANCE);
 
+	public int getInitialBalance() {
+		return initialBalance.get();
+	}
+
 	/**HashMap to save the users*/ 
 	private static ConcurrentHashMap<String,User> users = new ConcurrentHashMap<>();
 	
@@ -48,7 +52,7 @@ public class UsersManager {
 			throw new InvalidEmailException("The email can not be null or empty.");
 		}
 		if(users.get(email) == null){
-			User user = new User(email, initialBalance.get());
+			User user = new User(email);
 			users.put(email, user);
 			return user.getUserView();
 		}

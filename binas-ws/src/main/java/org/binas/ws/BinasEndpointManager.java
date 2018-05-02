@@ -64,6 +64,7 @@ public class BinasEndpointManager {
 		this.wsURL = wsURL;
 		this.setReplicsNumber(replicsNumber);
 		BinasManager.getInstance().setUDDIUrl(uddiURL);
+		BinasManager.getInstance().setNumberOfReplics(replicsNumber);
 	}
 	
 	// Getters and Setters --------------------------------------------------

@@ -10,7 +10,6 @@ import exceptions.NoCreditException;
 
 public class User {
 	private final String email;
-	private int credit;
 	private boolean hasBina;
 	
 	/**
@@ -19,10 +18,9 @@ public class User {
 	 * @throws EmailExists_Exception 
 	 * @throws InvalidEmail_Exception 
 	 */
-	public User(String email, int beginCredit) throws InvalidEmailException {
+	public User(String email) throws InvalidEmailException {
 		checkEmail(email);
 		this.email = email;
-		this.credit = beginCredit;
 		this.hasBina = false;
 	}
 	
@@ -49,32 +47,6 @@ public class User {
 	public String getEmail() {
 		return email;
 	}
-	
-	/**
-	 * @return the credit
-	 */
-	public synchronized int getCredit() {
-		return credit;
-	}
-	
-	/**
-	 * @param amount
-	 */
-	public synchronized void addCredit(int amount){
-		this.credit += amount;
-	}
-	
-	/**
-	 * @param amount
-	 * @throws NoCreditException 
-	 * @throws NoCredit_Exception if final balance is less than 0
-	 */
-	public synchronized void substractCredit(int amount) throws NoCreditException{
-		if(this.credit - amount < 0){
-			throw new NoCreditException("No credit avaiable for the operation.");
-		}
-		this.credit -= amount;
-	}
 
 	/**
 	 * @return the hasBina
@@ -97,7 +69,6 @@ public class User {
 		UserView userView= new UserView();
 		
 		userView.setEmail(this.email);
-		userView.setCredit(this.credit);
 		userView.setHasBina(this.hasBina);
 		
 		return userView;

@@ -11,8 +11,10 @@ import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceException;
 
 import org.binas.domain.BinasManager;
+import org.binas.domain.UsersManager;
 import org.binas.station.ws.AccountView;
 import org.binas.station.ws.GetBalanceResponse;
+import org.binas.station.ws.InvalidCredit_Exception;
 import org.binas.station.ws.InvalidFormatEmail_Exception;
 import org.binas.station.ws.SetBalanceResponse;
 import org.binas.station.ws.UserDoesNotExists_Exception;
@@ -84,16 +86,24 @@ public class BinasPortImpl implements BinasPortType {
 
 	@Override
 	public UserView activateUser(String email) throws EmailExists_Exception, InvalidEmail_Exception {
+		int initialBalance = UsersManager.getInstance().getInitialBalance();
 		try {
-			return binasManager.addUser(email);
-		} 
-		catch(InvalidEmailException e) {
-			ExceptionsHelper.throwInvalidEmail(e.getMessage());
-		}
-		catch(EmailExistsException e) {
+			checkEmail(email);
+			getBalance(email);
+		} catch (InvalidEmailException e) {
 			ExceptionsHelper.throwEmailExists(e.getMessage());
+		} catch (UserNotExistsException e) {
+			try {
+				setBalance(email, initialBalance, BinasManager.getInstance().getTag(),
+								BinasManager.getInstance().getClientID());
+			} catch (NoCreditException e1) {
+				// doesnt happen
+				e1.printStackTrace();
+			} catch (InvalidEmailException e1) {
+				ExceptionsHelper.throwInvalidEmail(e1.getMessage());
+			}
 		}
-		return null;
+		return newUserView(email, initialBalance, false);
 	}
 
 	@Override
@@ -265,7 +275,7 @@ public class BinasPortImpl implements BinasPortType {
 				}
 			}
 		}
-		
+		//caught only exceptions
 		if(latestVersion == null){
 			int numberOfInvalid = 0;
 			int numberOfUserNotExists = 0;
@@ -288,7 +298,7 @@ public class BinasPortImpl implements BinasPortType {
 	}
 	
 	
-	private boolean setBalance(String email, int credit, int tag, int clientID) {
+	private boolean setBalance(String email, int credit, int tag, int clientID) throws NoCreditException, InvalidEmailException {
 		int numberOfReplics = binasEndpointManager.getReplicsNumber();
 		HashMap<String, StationClient> replics = new HashMap<String, StationClient>();
 		//search replica and try 3 times to connect(on fail)
@@ -322,9 +332,16 @@ public class BinasPortImpl implements BinasPortType {
 			for(String stationsName : responses.keySet()) {
 				if(responses.get(stationsName).isDone()) {
 					try {
-						if(setBalanceAsync(email, credit, tag, clientID))
-						responses.remove(stationsName);
-						numberOfResponses++;
+						if(responses.get(stationsName).get().isBalanceBool()){
+							ackOk.add(stationsName);
+							responses.remove(stationsName);
+							numberOfResponses++;
+						}
+						else {
+							//try again, send the query
+							responses.remove(stationsName);
+							responses.put(stationsName, replics.get(stationsName).setBalanceAsync(email, credit, tag, clientID));
+						}
 					} catch(ExecutionException e){
 						Throwable cause = e.getCause();
 						if(cause != null && (cause instanceof InvalidFormatEmail_Exception ||
@@ -358,6 +375,27 @@ public class BinasPortImpl implements BinasPortType {
 			}
 		}
 
+		if(ackOk.size() < exceptionsCaught.size()){
+			int numberOfInvalidCredit = 0;
+			int numberOfInvalidFormatEmail = 0;
+			
+			for(Throwable exception : exceptionsCaught){
+				if(exception instanceof InvalidCredit_Exception){
+					numberOfInvalidCredit++;
+				}
+				else if(exception instanceof InvalidFormatEmail_Exception){
+					numberOfInvalidFormatEmail++;
+				}
+			}
+			
+			if(numberOfInvalidCredit > numberOfInvalidFormatEmail){
+				throw new NoCreditException();
+			}
+			else{
+				throw new InvalidEmailException();
+			}
+		}
+		
 		return true;
 	}
 	
@@ -370,6 +408,16 @@ public class BinasPortImpl implements BinasPortType {
 		if(!email.matches(regex)){
 			throw new InvalidEmailException("The email " + email + " format is invalid.");
 		}	
+	}
+	
+	private UserView newUserView(String email, int credit, boolean hasBina) {
+		UserView userView= new UserView();
+		
+		userView.setEmail(email);
+		userView.setCredit(credit);
+		userView.setHasBina(hasBina);
+		
+		return userView;
 	}
 }
 
