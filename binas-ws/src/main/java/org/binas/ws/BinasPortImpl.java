@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceException;
@@ -32,6 +33,7 @@ import exceptions.NoBinaRentedException;
 import exceptions.NoCreditException;
 import exceptions.UserNotExistsException;
 
+
 @WebService(endpointInterface = "org.binas.ws.BinasPortType",
 wsdlLocation = "binas.1_0.wsdl",
 name ="BinasService",
@@ -39,6 +41,8 @@ portName = "BinasPort",
 targetNamespace="http://ws.binas.org/",
 serviceName = "BinasService"
 )
+@HandlerChain(file = "/binas-ws_handler-chain.xml")
+
 public class BinasPortImpl implements BinasPortType {
 	/** Endpoint Manager for binas*/
 	private BinasEndpointManager binasEndpointManager;

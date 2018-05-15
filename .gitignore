@@ -47,7 +47,6 @@ binas-ws/doc/jquery/jquery-ui.js
 *.xmi
 .metadata/.plugins/org.eclipse.jdt.core/externalLibsTimeStamps
 *.dat
-*.xml
 *.fdt
 *.fdx
 *.frq
