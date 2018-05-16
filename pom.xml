@@ -15,6 +15,9 @@
 
 		<module>binas-ws</module>
 		<module>binas-ws-cli</module>
+
+		<module>kerby-ws-cli</module>
+		<module>kerby-lib</module>
 	</modules>
 
 </project>

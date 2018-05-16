@@ -21,11 +21,8 @@
 
 		<mainclass>pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClientApp</mainclass>
 
-		<uddi.url>http://localhost:9090</uddi.url>
-		<ws.name>kerby</ws.name>
-		<ws.host>localhost</ws.host>
-		<ws.port>8888</ws.port>
-		<ws.url>http://${ws.host}:${ws.port}/kerby</ws.url>
+		<uddi.url>http://a47:UZB3aXw@uddi.sd.rnl.tecnico.ulisboa.pt:9090/</uddi.url>
+		<ws.url>http://sec.sd.rnl.tecnico.ulisboa.pt:8888/kerby</ws.url>
 	</properties>
 
 	<dependencies>
@@ -87,7 +84,7 @@
 				</executions>
 				<configuration>
 					<!-- http://www.mojohaus.org/jaxws-maven-plugin/wsimport-mojo.html -->
-					<wsdlDirectory>${wsdl.dir}</wsdlDirectory>
+					<wsdlDirectory>${basedir}/src/main/resources</wsdlDirectory>
 				</configuration>
 				<dependencies>
 					<dependency>
