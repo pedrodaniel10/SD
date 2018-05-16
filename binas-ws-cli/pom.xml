@@ -69,7 +69,6 @@
 				<version>2.4.1</version> 
 				<executions> 
 					<execution> 
-					
 						<goals> 
 							<goal>wsimport</goal> 
 						</goals> 
