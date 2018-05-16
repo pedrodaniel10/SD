@@ -7,12 +7,12 @@
 		
 		
 		<handler>
-            <handler-class>example.ws.handler.PrettyLogHandler</handler-class>
+            <handler-class>org.binas.ws.handlers.PrettyLogHandler</handler-class>
         </handler>
 		
 		
         <handler>
-            <handler-class>example.ws.handler.PrettyLogHandler</handler-class>
+            <handler-class>org.binas.ws.handlers.PrettyLogHandler</handler-class>
         </handler>
 
 
