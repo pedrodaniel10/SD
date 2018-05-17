@@ -1,4 +1,4 @@
-package example.ws.handler;
+package binas.ws.handler;
 
 import java.io.IOException;
 import java.io.PrintStream;

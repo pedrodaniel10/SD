@@ -22,7 +22,7 @@ public class ReturnBinaIT extends BaseIT {
 	private static final String stationID1 = "A47_Station1";
 	private static final String stationID2 = "A47_Station2";
 	private static final String stationIDInvalid = "CXX";
-	private static final String email = "tecnico@sd";
+	private static final String email = "alice@A47.binas.org";
 	private static final String emailNotActive = "sd@tecnico";
 	
 	//(º)	consegue retornar uma bicicleta numa estacao com sucesso

@@ -1,4 +1,4 @@
-package example.ws.handler;
+package binas.ws.handler.it;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -18,6 +18,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.junit.Test;
 
+import binas.ws.handler.HeaderHandler;
 import mockit.Expectations;
 import mockit.Mocked;
 

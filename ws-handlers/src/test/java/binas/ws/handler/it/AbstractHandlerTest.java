@@ -1,4 +1,4 @@
-package example.ws.handler;
+package binas.ws.handler.it;
 
 import java.io.ByteArrayInputStream;
 
