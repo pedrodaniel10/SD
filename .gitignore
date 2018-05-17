@@ -61,7 +61,6 @@ binas-ws/doc/jquery/jquery-ui.js
 .metadata/.plugins/org.eclipse.jdt.core/assumedExternalFilesCache
 .metadata/.plugins/org.eclipse.jdt.core/externalFilesCache
 *.ser
-*.properties
 .metadata/.plugins/org.eclipse.ui.intro/introstate
 *.ini
 *.json
