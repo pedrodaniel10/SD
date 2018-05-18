@@ -123,17 +123,39 @@ public class BinasClient implements BinasPortType {
 	 @Override
 	 public void rentBina(String stationId, String email) throws AlreadyHasBina_Exception, InvalidStation_Exception,
 	 									NoBinaAvail_Exception, NoCredit_Exception, UserNotExists_Exception {
+		 try {
+			activateUser(email);
+		} catch (EmailExists_Exception e) {
+
+		} catch (InvalidEmail_Exception e) {
+			throw new UserNotExists_Exception(e.getMessage(), null);
+		}
 		 port.rentBina(stationId,email);
 	 }
 	
 	 @Override
 	 public void returnBina(String stationId, String email) throws FullStation_Exception, InvalidStation_Exception,
 	 												NoBinaRented_Exception, UserNotExists_Exception {
+
+		try {
+			activateUser(email);
+		} catch (EmailExists_Exception e) {
+
+		} catch (InvalidEmail_Exception e) {
+			throw new UserNotExists_Exception(e.getMessage(), null);
+		}
 	 	port.returnBina(stationId,email);	
 	 }
 	
 	 @Override
 	 public int getCredit(String email) throws UserNotExists_Exception {
+		 try {
+			activateUser(email);
+		} catch (EmailExists_Exception e) {
+
+		} catch (InvalidEmail_Exception e) {
+			throw new UserNotExists_Exception(e.getMessage(), null);
+		}
 		 return port.getCredit(email);
 	 }
 
