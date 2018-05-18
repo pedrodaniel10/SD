@@ -133,7 +133,6 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 						throw new RuntimeException("Client doesnt match");
 					}
 					
-					smc.put("email", ticket.getX());
 					
 					//check treq between t1 and t2
 					Date now = new Date();
@@ -155,6 +154,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 					requestTimeSend = requestTimeToSend;
 					keyKcs = ticket.getKeyXY();
 					smc.put("kcs", keyKcs);	
+					smc.put("email", new String(auth.getX()));
 					
 					//remove headers
 					header.removeChild(nodeTicket);
@@ -186,7 +186,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 			prop.load(KerberosServerHandler.class.getResourceAsStream(TEST_PROP_FILE));
 			return prop.getProperty("binas.password");
 		} catch (IOException e) {
-			final String msg = String.format("Could not load properties file {}", TEST_PROP_FILE);
+			final String msg = String.format("Could not load properties file:{}", TEST_PROP_FILE);
 			System.out.println(msg);
 		}
 		
@@ -199,7 +199,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 			prop.load(KerberosServerHandler.class.getResourceAsStream(TEST_PROP_FILE));
 			return prop.getProperty("binas.server");
 		} catch (IOException e) {
-			final String msg = String.format("Could not load properties file {}", TEST_PROP_FILE);
+			final String msg = String.format("Could not load properties file:{}", TEST_PROP_FILE);
 			System.out.println(msg);
 		}
 		

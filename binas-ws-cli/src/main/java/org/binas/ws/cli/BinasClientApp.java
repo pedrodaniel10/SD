@@ -39,9 +39,12 @@ public class BinasClientApp {
         // the following remote invocations are just basic examples
         // the actual tests are made using JUnit
 
-		 System.out.println("Invoke ping()...");
-		 String result = client.testPing("client");
-		 System.out.print(result);
+		 System.out.println("Invoke rentBina(alice@A47.binas.org)...");
+		 client.rentBina("A47_Station1", "alice@A47.binas.org");
+		 System.out.println("Invoke returnBina(alice@A47.binas.org)...");
+		 client.returnBina("A47_Station1", "alice@A47.binas.org");
+		 System.out.println("Invoke getCredit(alice@A47.binas.org)...");
+		 client.getCredit("alice@A47.binas.org");
         
 	 }
 }

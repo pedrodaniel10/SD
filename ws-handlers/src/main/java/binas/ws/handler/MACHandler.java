@@ -123,7 +123,6 @@ public class MACHandler implements SOAPHandler<SOAPMessageContext> {
 		} 
 		else {
 			System.out.println("MACHandler: Reading header from INbound SOAP message...");		
-			
 			try{
 				// get SOAP envelope
 				SOAPMessage msg = smc.getMessage();
