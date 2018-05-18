@@ -38,12 +38,7 @@ import org.w3c.dom.NodeList;
 import pt.ulisboa.tecnico.sdis.kerby.CipheredView;
 import pt.ulisboa.tecnico.sdis.kerby.SecurityHelper;
 
-public class MaliciousHandler implements SOAPHandler<SOAPMessageContext> {
-	private static final String XML_TARGET_NAMESPACE = "http://ws.binas.org/";
-	private static final String TEST_PROP_FILE = "/secrets.properties";
-	
-	private static final String DIGEST_ALGO = "SHA-256";
-	
+public class MaliciousHandler implements SOAPHandler<SOAPMessageContext> {	
 	@Override
 	public void close(MessageContext arg0) {
 		// TODO Auto-generated method stub
@@ -92,37 +87,6 @@ public class MaliciousHandler implements SOAPHandler<SOAPMessageContext> {
 	public Set<QName> getHeaders() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-	
-	private SOAPElement getSoapElement(SOAPEnvelope envelope, SOAPHeader header, String elementName) throws SOAPException{
-		javax.xml.soap.Name name = envelope.createName(elementName, "security", XML_TARGET_NAMESPACE);
-		
-		Iterator<SOAPElement> iterator = header.getChildElements(name);
-		
-		if(iterator.hasNext() == false){
-			return null;
-		}
-		else{
-			return (SOAPElement) iterator.next();
-		}
-	}
-	
-	private String toBase64(byte[] data){
-		byte[] encoded = Base64.getEncoder().encode(data);
-		return new String(encoded);
-	}
-	
-	private String toBase64(CipheredView view){
-		byte[] encoded = Base64.getEncoder().encode(view.getData());
-		return new String(encoded);
-	}
-	
-	private CipheredView fromBase64(String data){
-		CipheredView view = new CipheredView();
-		
-		byte[] decoded = Base64.getDecoder().decode(data);
-		view.setData(decoded);
-		return view;
 	}
 
 }

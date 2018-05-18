@@ -47,8 +47,9 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
 				
 				if(tagListEmails.getLength() == 1){
 					if(!tagListEmails.item(0).getTextContent().equals(smc.get("email"))){
-						System.out.println(tagListEmails.item(0).getTextContent());
-						System.out.println(smc.get("email"));
+						System.out.println("ACESS DENIED!");
+						System.out.println("Email received:" + tagListEmails.item(0).getTextContent());
+						System.out.println("Email with session:" + smc.get("email"));
 						throw new RuntimeException("Acess Denied!.");
 					}
 				}

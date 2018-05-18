@@ -168,8 +168,9 @@ public class MACHandler implements SOAPHandler<SOAPMessageContext> {
 					
 					//compare digests
 					if(!Arrays.equals(digestToCompare,digest)){
-						System.out.println(toBase64(digestToCompare));
-						System.out.println(toBase64(digest));
+						System.out.println("MAC doesnt match.");
+						System.out.println("MAC received:" + toBase64(digestToCompare));
+						System.out.println("MAC CALCULATED:" + toBase64(digest));
 						throw new RuntimeException("MAC doesnt match.");
 					}
 					

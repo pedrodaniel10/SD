@@ -18,6 +18,8 @@
 
 		<module>kerby-ws-cli</module>
 		<module>kerby-lib</module>
+
+		<module>ws-handlers</module>
 	</modules>
 
 </project>

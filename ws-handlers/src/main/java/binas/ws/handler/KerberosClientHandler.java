@@ -172,8 +172,8 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
 						RequestTime reqReceived = new RequestTime(treq, keyKcs);
 						
 						if(!reqReceived.getTimeRequest().equals(this.tReq)){
-							System.out.println(reqReceived.getTimeRequest());
-							System.out.println(this.tReq);
+							System.out.println("Treq received:" + reqReceived.getTimeRequest());
+							System.out.println("Treq sent:" + this.tReq);
 							throw new RuntimeException("TREQ received doesnt match with TREQ sent.");
 						}
 						
