@@ -141,7 +141,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 					   auth.getTimeRequest().after(ticket.getTime2()) ||
 					   now.before(ticket.getTime1()) ||
 					   now.after(ticket.getTime2()) ||
-					   auth.getTimeRequest().getTime() < (now.getTime() - 5000)) {
+					   auth.getTimeRequest().getTime() < (now.getTime() - 2000)) {
 						throw new RuntimeException("Ticket expired");
 					}
 					
