@@ -104,6 +104,7 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
 						}
 												
 						keyKcs = sessionKey.getKeyXY();
+						smc.put("kcs", keyKcs);	
 						
 						//create auth
 						this.tReq = new Date();
@@ -135,7 +136,7 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
 						
 						String stringTicket = toBase64(result.getTicket());
 						elementTicket.addTextNode(stringTicket);
-									
+															
 					}
 					catch(BadTicketRequest_Exception e){
 						//nothing to do

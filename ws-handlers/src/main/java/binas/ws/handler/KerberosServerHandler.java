@@ -7,6 +7,7 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
@@ -122,15 +123,19 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 							
 					Auth auth = new Auth(authView, ticket.getKeyXY());
 					
-					
 					//check client 
 					if(!ticket.getX().equals(auth.getX())) {
 						throw new RuntimeException("Client doesnt match");
 					}
 					
+					smc.put("email", ticket.getX());
+					
 					//check treq between t1 and t2
+					Date now = new Date();
 					if(auth.getTimeRequest().before(ticket.getTime1()) ||
-					   auth.getTimeRequest().after(ticket.getTime2())) {
+					   auth.getTimeRequest().after(ticket.getTime2()) ||
+					   now.before(ticket.getTime1()) ||
+					   now.after(ticket.getTime2())) {
 						System.out.println(auth.getTimeRequest());
 						System.out.println(ticket.getTime1());
 						System.out.println(ticket.getTime2());
@@ -138,8 +143,6 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 					}
 					
 					
-					
-					//get source address
 					RequestTime requestTimeIntermediate = new RequestTime();
 					requestTimeIntermediate.setTimeRequest(auth.getTimeRequest());
 					CipheredView requestTimeCipher = requestTimeIntermediate.cipher(ticket.getKeyXY());
@@ -148,6 +151,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 					
 					requestTimeSend = requestTimeToSend;
 					keyKcs = ticket.getKeyXY();
+					smc.put("kcs", keyKcs);	
 					
 					//remove headers
 					header.removeChild(nodeTicket);

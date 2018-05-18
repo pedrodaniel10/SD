@@ -4,9 +4,11 @@
     <handler-chain>
 		
 		<handler>
+           	<handler-class>binas.ws.handler.MACHandler</handler-class>
+        </handler>
+		<handler>
             <handler-class>binas.ws.handler.KerberosServerHandler</handler-class>
         </handler>
-		
 		<handler>
             <handler-class>binas.ws.handler.PrettyLogHandler</handler-class>
         </handler>
