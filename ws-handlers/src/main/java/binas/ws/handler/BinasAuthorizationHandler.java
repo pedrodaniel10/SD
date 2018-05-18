@@ -48,6 +48,9 @@ public class BinasAuthorizationHandler implements SOAPHandler<SOAPMessageContext
 				if(tagListEmails.getLength() == 1){
 					tagListEmails.item(0).equals(smc.get("email"));
 				}
+				else if(tagListEmails.getLength() > 1){
+					throw new RuntimeException("More than one email in request.");
+				}
 				
 			} catch (SOAPException e) {
 				throw new RuntimeException("Problem getting soap.");
