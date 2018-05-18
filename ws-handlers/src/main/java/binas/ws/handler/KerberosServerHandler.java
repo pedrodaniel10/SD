@@ -28,13 +28,14 @@ import org.w3c.dom.NodeList;
 
 import pt.ulisboa.tecnico.sdis.kerby.Auth;
 import pt.ulisboa.tecnico.sdis.kerby.CipheredView;
+import pt.ulisboa.tecnico.sdis.kerby.KerbyException;
 import pt.ulisboa.tecnico.sdis.kerby.RequestTime;
 import pt.ulisboa.tecnico.sdis.kerby.SecurityHelper;
 import pt.ulisboa.tecnico.sdis.kerby.Ticket;
 
 public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 	private static final String XML_TARGET_NAMESPACE = "http://ws.binas.org/";
-	private static final String TEST_PROP_FILE = "/secrets.properties";
+	private static final String TEST_PROP_FILE = "/server.properties";
 	private RequestTime requestTimeSend = null;
 	private Key keyKcs = null;
 	
@@ -56,8 +57,8 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 		
 		Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 		
-		try {
-			if (outboundElement.booleanValue()) {
+		if (outboundElement.booleanValue()) {
+			try{
 				System.out.println("KerberosServerHandler: Writing header to OUTbound SOAP message...");
 				// get SOAP envelope
 				SOAPMessage msg = smc.getMessage();
@@ -73,7 +74,7 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 				RequestTime requestTime = requestTimeSend;
 				
 				if(requestTime == null){
-					return true; //ignore
+					throw new RuntimeException("No request time.");
 				}
 				
 				//add reqTime
@@ -82,9 +83,16 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 				
 				String stringRequestTime = toBase64(requestTime.cipher(keyKcs));
 				elementTimeReq.addTextNode(stringRequestTime);
-				
-			} 
-			else {
+			
+			} catch (SOAPException e) {
+				throw new RuntimeException("Problem getting soap.");
+			} catch (KerbyException e) {
+				throw new RuntimeException("Problem running Kerberos protocol.");
+			}
+			
+		} 
+		else {
+			try{
 				System.out.println("KerberosServerHandler: Reading header from INbound SOAP message...");
 				// get SOAP envelope
 				SOAPMessage msg = smc.getMessage();
@@ -94,27 +102,24 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 				SOAPHeader header = se.getHeader();
 				
 				if(header == null) {
-					return true; //do nothing
+					throw new RuntimeException("No header to get ticket and auth.");
 				}
 				
 				SOAPElement nodeTicket = getSoapElement(se, header, "ticket");
 				SOAPElement nodeAuth = getSoapElement(se, header, "auth");
-				
-				if(nodeTicket == null && nodeAuth == null){
-					return true; //do nothing
-				}
-				else if(nodeTicket == null || nodeAuth == null){
+								
+				if(nodeTicket == null || nodeAuth == null){
 					throw new RuntimeException("Missing headers for security.");
 				}
 				else{
 					String email = getServerEmail();
-					String pass = getPassword(email);
+					String pass = getPassword();
 					Key keyServer = getKey(pass);
 					
 					
 					String ticketString = nodeTicket.getTextContent();
 					CipheredView ticketView = fromBase64(ticketString);
-
+	
 					Ticket ticket = new Ticket(ticketView, keyServer);
 					
 					
@@ -135,10 +140,8 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 					if(auth.getTimeRequest().before(ticket.getTime1()) ||
 					   auth.getTimeRequest().after(ticket.getTime2()) ||
 					   now.before(ticket.getTime1()) ||
-					   now.after(ticket.getTime2())) {
-						System.out.println(auth.getTimeRequest());
-						System.out.println(ticket.getTime1());
-						System.out.println(ticket.getTime2());
+					   now.after(ticket.getTime2()) ||
+					   auth.getTimeRequest().getTime() < (now.getTime() - 5000)) {
 						throw new RuntimeException("Ticket expired");
 					}
 					
@@ -156,14 +159,16 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 					//remove headers
 					header.removeChild(nodeTicket);
 					header.removeChild(nodeAuth);
-				}	
 				
-			}
-		} catch (Exception e) {
-			System.out.print("Caught exception in handleMessage: ");
-			System.out.println(e);
-			System.out.println("Continue normal processing...");
-			e.printStackTrace();
+					}	
+				} catch (SOAPException e) {
+					throw new RuntimeException("Problem getting soap.");
+				} catch (KerbyException e) {
+					throw new RuntimeException("Problem running Kerberos protocol.");
+				} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+					throw new RuntimeException("Couldnt get key.");
+				}
+			
 		}
 		
 		return true;
@@ -175,11 +180,11 @@ public class KerberosServerHandler implements SOAPHandler<SOAPMessageContext> {
 		return null;
 	}
 	
-	private String getPassword(String email){
+	private String getPassword(){
 		try {
 			Properties prop = new Properties();
 			prop.load(KerberosServerHandler.class.getResourceAsStream(TEST_PROP_FILE));
-			return prop.getProperty(email);
+			return prop.getProperty("binas.password");
 		} catch (IOException e) {
 			final String msg = String.format("Could not load properties file {}", TEST_PROP_FILE);
 			System.out.println(msg);

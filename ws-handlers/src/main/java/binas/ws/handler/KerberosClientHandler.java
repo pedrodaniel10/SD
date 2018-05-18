@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
-import java.util.jar.Attributes.Name;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
@@ -21,24 +20,23 @@ import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-
-import org.w3c.dom.NodeList;
 
 import pt.ulisboa.tecnico.sdis.kerby.Auth;
 import pt.ulisboa.tecnico.sdis.kerby.BadTicketRequest_Exception;
 import pt.ulisboa.tecnico.sdis.kerby.CipheredView;
+import pt.ulisboa.tecnico.sdis.kerby.KerbyException;
 import pt.ulisboa.tecnico.sdis.kerby.RequestTime;
 import pt.ulisboa.tecnico.sdis.kerby.SecurityHelper;
 import pt.ulisboa.tecnico.sdis.kerby.SessionKey;
 import pt.ulisboa.tecnico.sdis.kerby.SessionKeyAndTicketView;
 import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClient;
+import pt.ulisboa.tecnico.sdis.kerby.cli.KerbyClientException;
 
 public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
 	private static final String XML_TARGET_NAMESPACE = "http://ws.binas.org/";
-	private static final String TEST_PROP_FILE = "/secrets.properties";
+	private static final String TEST_PROP_FILE = "/client.properties";
 	private static SecureRandom randomGenerator = new SecureRandom();
 	private static final int VALID_DURATION = 60;
 	private Date tReq = null;
@@ -61,135 +59,134 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
 		System.out.println("KerberosClientHandler: Handling message.");
 		
 		Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-		
-		try {
+
 			if (outboundElement.booleanValue()) {
 				System.out.println("KerberosClientHandler: Writing header to OUTbound SOAP message...");
-				
-				//search email
-				NodeList tagListEmails = smc.getMessage().getSOAPBody().getElementsByTagName("email");
-				
-				if(tagListEmails.getLength() == 1){
-					String email = tagListEmails.item(0).getTextContent();
-					
+				try{	
 					KerbyClient client = new KerbyClient(getWSURL());
 					long nounce = randomGenerator.nextLong();
-					try{						
-						//get ticket from kerby
-						SessionKeyAndTicketView result = client.requestTicket(email, getServerEmail(), nounce, VALID_DURATION);
+										
+					String email = getEmail();
+					//get ticket from kerby
+					SessionKeyAndTicketView result = client.requestTicket(email, getServerEmail(), nounce, VALID_DURATION);
+				
 					
-						
-						CipheredView cipheredSessionKey = result.getSessionKey();
-						CipheredView cipheredTicket = result.getTicket();
-						
-						//get password to generate kc
-						String password = getPassword(email);
-						
-						
-						
-						Key clientKey = null;
-						if(password == null){
-							throw new RuntimeException("No password found for user");
-						}
-						else {
-							clientKey = getKey(password);
-						}
-						
-						
-						SessionKey sessionKey = new SessionKey(cipheredSessionKey, clientKey);
-						
-						//check nounce
-						if(sessionKey.getNounce() != nounce){
-							throw new RuntimeException("Nounce is not the same");
-						}
-												
-						keyKcs = sessionKey.getKeyXY();
-						smc.put("kcs", keyKcs);	
-						
-						//create auth
-						this.tReq = new Date();
-						Auth authIntermediate = new Auth(email, this.tReq);
-						
-						CipheredView authView = authIntermediate.cipher(keyKcs);	
-						
-						// get SOAP envelope
-						SOAPMessage msg = smc.getMessage();
-						SOAPPart sp = msg.getSOAPPart();
-						SOAPEnvelope se = sp.getEnvelope();
-						//write to header
-						SOAPHeader header = se.getHeader();
-						
-						if(header == null) {
-							header = se.addHeader();
-						}
-						
-						//add auth
-						javax.xml.soap.Name nameAuth = se.createName("auth", "security", XML_TARGET_NAMESPACE);
-						SOAPHeaderElement elementAuth = header.addHeaderElement(nameAuth);
-						
-						String stringAuth = toBase64(authView);
-						elementAuth.addTextNode(stringAuth);
-						
-						//add ticket
-						javax.xml.soap.Name ticketAuth = se.createName("ticket", "security", XML_TARGET_NAMESPACE);
-						SOAPHeaderElement elementTicket = header.addHeaderElement(ticketAuth);
-						
-						String stringTicket = toBase64(result.getTicket());
-						elementTicket.addTextNode(stringTicket);
-															
+					CipheredView cipheredSessionKey = result.getSessionKey();
+					CipheredView cipheredTicket = result.getTicket();
+					
+					//get password to generate kc
+					String password = getPassword();
+					
+					
+					
+					Key clientKey = null;
+					if(password == null){
+						throw new RuntimeException("No password found for user");
 					}
-					catch(BadTicketRequest_Exception e){
-						//nothing to do
+					else {
+						clientKey = getKey(password);
 					}
+					
+					
+					SessionKey sessionKey = new SessionKey(cipheredSessionKey, clientKey);
+					
+					//check nounce
+					if(sessionKey.getNounce() != nounce){
+						throw new RuntimeException("Nounce is not the same");
+					}
+											
+					keyKcs = sessionKey.getKeyXY();
+					smc.put("kcs", keyKcs);	
+					
+					//create auth
+					this.tReq = new Date();
+					Auth authIntermediate = new Auth(email, this.tReq);
+					
+					CipheredView authView = authIntermediate.cipher(keyKcs);	
+					
+					// get SOAP envelope
+					SOAPMessage msg = smc.getMessage();
+					SOAPPart sp = msg.getSOAPPart();
+					SOAPEnvelope se = sp.getEnvelope();
+					//write to header
+					SOAPHeader header = se.getHeader();
+					
+					if(header == null) {
+						header = se.addHeader();
+					}
+					
+					//add auth
+					javax.xml.soap.Name nameAuth = se.createName("auth", "security", XML_TARGET_NAMESPACE);
+					SOAPHeaderElement elementAuth = header.addHeaderElement(nameAuth);
+					
+					String stringAuth = toBase64(authView);
+					elementAuth.addTextNode(stringAuth);
+					
+					//add ticket
+					javax.xml.soap.Name ticketAuth = se.createName("ticket", "security", XML_TARGET_NAMESPACE);
+					SOAPHeaderElement elementTicket = header.addHeaderElement(ticketAuth);
+					
+					String stringTicket = toBase64(result.getTicket());
+					elementTicket.addTextNode(stringTicket);
+														
 				}
-				else if(tagListEmails.getLength() > 1){
-					return true;
+				catch(BadTicketRequest_Exception e){
+					throw new RuntimeException("Bad ticket Exception");
+				} catch (KerbyClientException e) {
+					throw new RuntimeException("Couldnt create kerby client.");
+				} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+					throw new RuntimeException("Couldnt get key.");
+				}  catch (SOAPException e) {
+					throw new RuntimeException("Problem getting soap.");
+				} catch (KerbyException e) {
+					throw new RuntimeException("Problem running Kerberos protocol.");
 				}
+
 
 			} 
 			else {
 				System.out.println("KerberosClientHandler: Reading header from INbound SOAP message...");
-				// get SOAP envelope
-				SOAPMessage msg = smc.getMessage();
-				SOAPPart sp = msg.getSOAPPart();
-				SOAPEnvelope se = sp.getEnvelope();
-				//write to header
-				SOAPHeader header = se.getHeader();
-				
-				if(header == null) {
-					return true; //do nothing
-				}
-				
-				//get REQTIME
-				SOAPElement reqTimeElement = getSoapElement(se, header, "requestTime");
-				
-				if(reqTimeElement == null){
-					return true; // do nothing
-				}
-				else{
-					String treqString = reqTimeElement.getTextContent();
-					CipheredView treq = fromBase64(treqString);
+				try{
+					// get SOAP envelope
+					SOAPMessage msg = smc.getMessage();
+					SOAPPart sp = msg.getSOAPPart();
+					SOAPEnvelope se = sp.getEnvelope();
+					//write to header
+					SOAPHeader header = se.getHeader();
 					
-					//check treq
-					RequestTime reqReceived = new RequestTime(treq, keyKcs);
-					
-					if(!reqReceived.getTimeRequest().equals(this.tReq)){
-						System.out.println(reqReceived.getTimeRequest());
-						System.out.println(this.tReq);
-						throw new RuntimeException("TREQ received doesnt match with TREQ sent.");
+					if(header == null) {
+						throw new RuntimeException("No header to get treq.");
 					}
 					
-					//delete header
-					header.removeChild(reqTimeElement);
-				}
+					//get REQTIME
+					SOAPElement reqTimeElement = getSoapElement(se, header, "requestTime");
+					
+					if(reqTimeElement == null){
+						throw new RuntimeException("No reqtime.");
+					}
+					else{
+						String treqString = reqTimeElement.getTextContent();
+						CipheredView treq = fromBase64(treqString);
+						
+						//check treq
+						RequestTime reqReceived = new RequestTime(treq, keyKcs);
+						
+						if(!reqReceived.getTimeRequest().equals(this.tReq)){
+							System.out.println(reqReceived.getTimeRequest());
+							System.out.println(this.tReq);
+							throw new RuntimeException("TREQ received doesnt match with TREQ sent.");
+						}
+						
+						//delete header
+						header.removeChild(reqTimeElement);
+					}
 				
+				} catch (SOAPException e) {
+					throw new RuntimeException("Problem getting soap.");
+				} catch (KerbyException e) {
+					throw new RuntimeException("Problem running Kerberos protocol.");
+				} 
 			}
-		} catch (Exception e) {
-			System.out.print("Caught exception in handleMessage: ");
-			System.out.println(e);
-			System.out.println("Continue normal processing...");
-			e.printStackTrace();
-		}
 		
 		return true;
 	}
@@ -200,11 +197,24 @@ public class KerberosClientHandler implements SOAPHandler<SOAPMessageContext> {
 		return null;
 	}
 	
-	private String getPassword(String email){
+	private String getEmail(){
 		try {
 			Properties prop = new Properties();
 			prop.load(KerberosClientHandler.class.getResourceAsStream(TEST_PROP_FILE));
-			return prop.getProperty(email);
+			return prop.getProperty("client.email");
+		} catch (IOException e) {
+			final String msg = String.format("Could not load properties file {}", TEST_PROP_FILE);
+			System.out.println(msg);
+		}
+		
+		return null;
+	}
+	
+	private String getPassword(){
+		try {
+			Properties prop = new Properties();
+			prop.load(KerberosClientHandler.class.getResourceAsStream(TEST_PROP_FILE));
+			return prop.getProperty("client.password");
 		} catch (IOException e) {
 			final String msg = String.format("Could not load properties file {}", TEST_PROP_FILE);
 			System.out.println(msg);

@@ -2,14 +2,19 @@ package binas.ws.handler;
 
 import java.io.StringWriter;
 import java.lang.reflect.Array;
+import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
@@ -18,7 +23,10 @@ import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.handler.MessageContext;
@@ -52,10 +60,10 @@ public class MACHandler implements SOAPHandler<SOAPMessageContext> {
 		
 		Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 		
-		try {
-			if (outboundElement.booleanValue()) {
-				System.out.println("MACClientHandler: Writing header to OUTbound SOAP message...");
-				
+		if (outboundElement.booleanValue()) {
+			System.out.println("MACClientHandler: Writing header to OUTbound SOAP message...");
+			
+			try{
 				//get body to bytes
 				DOMSource source = new DOMSource(smc.getMessage().getSOAPBody());
 				StringWriter stringResult = new StringWriter();
@@ -92,10 +100,31 @@ public class MACHandler implements SOAPHandler<SOAPMessageContext> {
 				
 				String stringDigest = toBase64(digestCiphered);
 				elementDigest.addTextNode(stringDigest);		
+			} catch (SOAPException e) {
+				throw new RuntimeException("Problem getting soap.");
+			} catch (TransformerConfigurationException e) {
+				throw new RuntimeException("Problem converting body to bytes.");
+			} catch (TransformerException e) {
+				throw new RuntimeException("Problem converting body to bytes.");
+			} catch (TransformerFactoryConfigurationError e) {
+				throw new RuntimeException("Problem converting body to bytes.");
+			} catch (NoSuchAlgorithmException e) {
+				throw new RuntimeException("Problem ciphering digest.");
+			} catch (InvalidKeyException e) {
+				throw new RuntimeException("Problem ciphering digest.");
+			} catch (NoSuchPaddingException e) {
+				throw new RuntimeException("Problem ciphering digest.");
+			} catch (IllegalBlockSizeException e) {
+				throw new RuntimeException("Problem ciphering digest.");
+			} catch (BadPaddingException e) {
+				throw new RuntimeException("Problem ciphering digest.");
+			}
 
-			} 
-			else {
-				System.out.println("MACHandler: Reading header from INbound SOAP message...");		
+		} 
+		else {
+			System.out.println("MACHandler: Reading header from INbound SOAP message...");		
+			
+			try{
 				// get SOAP envelope
 				SOAPMessage msg = smc.getMessage();
 				SOAPPart sp = msg.getSOAPPart();
@@ -104,23 +133,24 @@ public class MACHandler implements SOAPHandler<SOAPMessageContext> {
 				SOAPHeader header = se.getHeader();
 				
 				if(header == null) {
-					return true; //do nothing
+					throw new RuntimeException("No header to get MAC.");
 				}
 				
 				//get digest from header
 				SOAPElement digestElement = getSoapElement(se, header, "digest");
 				
 				if(digestElement == null){
-					return true; // do nothing
+					throw new RuntimeException("No MAC on header.");
 				}
 				else{
 					String digestString = digestElement.getTextContent();
 					CipheredView digestHeaderCiphered = fromBase64(digestString);
 					
-					//decipher
+					//there is kcs
 					if(smc.get("kcs") == null){
-						return true; //do nothing
+						throw new RuntimeException("Not found key to decipher MAC.");
 					}
+					//decipher
 					Cipher decipher = SecurityHelper.initDecipher((Key) smc.get("kcs"));
 					byte[] digestToCompare = decipher.doFinal(digestHeaderCiphered.getData());
 										
@@ -143,19 +173,31 @@ public class MACHandler implements SOAPHandler<SOAPMessageContext> {
 						System.out.println(toBase64(digest));
 						throw new RuntimeException("MAC doesnt match.");
 					}
-				}
-				
-				
+					
+					//delete header
+					header.removeChild(digestElement);
+				}			
+			} catch (SOAPException e) {
+				throw new RuntimeException("Problem getting soap.");
+			} catch (InvalidKeyException e) {
+				throw new RuntimeException("Problem deciphering digest.");
+			} catch (NoSuchAlgorithmException e) {
+				throw new RuntimeException("Problem deciphering digest.");
+			} catch (NoSuchPaddingException e) {
+				throw new RuntimeException("Problem deciphering digest.");
+			} catch (IllegalBlockSizeException e) {
+				throw new RuntimeException("Problem deciphering digest.");
+			} catch (BadPaddingException e) {
+				throw new RuntimeException("Problem deciphering digest.");
+			} catch (TransformerConfigurationException e) {
+				throw new RuntimeException("Problem converting body to bytes.");
+			} catch (TransformerException e) {
+				throw new RuntimeException("Problem converting body to bytes.");
+			} catch (TransformerFactoryConfigurationError e) {
+				throw new RuntimeException("Problem converting body to bytes.");
 			}
-				
-		} 
-			catch (Exception e) {
-			System.out.print("Caught exception in handleMessage: ");
-			System.out.println(e);
-			System.out.println("Continue normal processing...");
-			e.printStackTrace();
+			
 		}
-		
 		return true;
 	}
 
