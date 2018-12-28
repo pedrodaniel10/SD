@@ -5,6 +5,7 @@ Distributed Systems Project - Binas System
 You must have installed the following tools:
 - Maven 3.x.x 
 - Java Development Kit 8 (JDK 8)
+- Apache jUDDI 3.x.x (configured for port 9090)
 - UDDI Naming (You can get it [here](https://github.com/tecnico-distsys/naming))
 
 Also check if JAVA_HOME and M2_HOME are set properly.
